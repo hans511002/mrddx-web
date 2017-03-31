@@ -1,0 +1,11 @@
+<mappings  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xfire.codehaus.org/schemas/1.0/mapping.xsd">
+ 
+	<mapping name="ReaData"  namespace="http://share.ods"> 
+		<property name="TableCount" mappedName="TableCount"></property>
+        <property name="resCode" mappedName="resCode"></property>
+        <property name="mess" mappedName="mess" ></property>
+        <property name="Tables" mappedName="Tables" /> 
+	</mapping> 
+   
+</mappings>

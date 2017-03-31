@@ -1,0 +1,36 @@
+<mappings  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xfire.codehaus.org/schemas/1.0/mapping.xsd">
+    <mapping>
+        <method name="getData"  namespace="http://share.ods">
+            <parameter index="0" mappedName="user"/>
+            <parameter index="1" mappedName="pass"/>
+            <parameter index="2" mappedName="rule_id"/>
+            <parameter index="3" mappedName="parNames"/>
+            <parameter index="4" mappedName="parValues"/>
+            <return-type name="ResData"  > 
+            </return-type>
+        </method>
+   <!--       <method name="webData">ref="" componentType="common.DataTable" typeName="ods.share.ResData" type="ods.share.ResData"
+            <parameter index="0" mappedName="user"/>
+            <parameter index="1" mappedName="pass"/>
+            <parameter index="2" mappedName="rule_id"/>
+            <parameter index="3" mappedName="parNames"/>
+            <parameter index="4" mappedName="parValues"/>
+            <return-type name="objData"  componentType="common.DataTable"/>
+        </method>
+        <method name="getTables">
+            <parameter index="0" mappedName="user"/>
+            <parameter index="1" mappedName="pass"/>
+            <parameter index="2" mappedName="rule_id"/>
+            <parameter index="3" mappedName="parNames"/>
+            <parameter index="4" mappedName="parValues"/>
+            <return-type name="tables"  componentType="common.DataTable" />
+        </method>
+        <method name="getTables"> type="common.DataTable"
+            <return-type mappedName="BookMap" keyType="java.lang.String" componentType="org.codehaus.xfire.demo.Book" />
+        </method>
+         -->
+   </mapping>
+   
+   
+</mappings>

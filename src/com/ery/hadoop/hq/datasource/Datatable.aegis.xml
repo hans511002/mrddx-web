@@ -1,0 +1,13 @@
+<mappings  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xfire.codehaus.org/schemas/1.0/mapping.xsd">
+ 
+	<mapping name="Table" namespace="http://share.ods"> 
+   		<property name="ColTypesName" mappedName="ColTypesName" componentType="java.lang.String"></property>
+   		<property name="ColsName" mappedName="ColsName" componentType="java.lang.String"></property>
+   		<property name="ColTypes" mappedName="ColTypes" ></property>
+   		<property name="ColsCount" mappedName="ColsCount" ></property>
+   		<property name="RowsCount" mappedName="RowsCount" ></property>
+   		<property name="Rows" mappedName="Rows" ></property> 
+	</mapping> 
+   
+</mappings>
