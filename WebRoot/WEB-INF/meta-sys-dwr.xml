@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://getahead.org/dwr/dwr30.dtd">
+<dwr>
+	<init>
+        <creator id="db" class="com.ery.base.support.dwr.DBCreator"/>
+        <converter id="nestedMap" class="com.ery.base.support.dwr.NestedMapConverter"/>
+        <converter id="nestedCollection" class="com.ery.base.support.dwr.NestedCollectionConverter"/>
+     </init>
+    <allow>
+        <create creator="db" javascript="SysEmailAction">
+            <param name="class" value="com.ery.meta.module.mag.sysemail.SysEmailAction"/>
+        </create>
+        <create creator="db" javascript="MenuAction">
+            <param name="class" value="com.ery.meta.module.mag.menu.MenuAction"/>
+        </create>
+        <create creator="db" javascript="RoleAction">
+            <param name="class" value="com.ery.meta.module.mag.role.RoleAction"/>
+        </create>
+        <create creator="db" javascript="LoginAction">
+            <param name="class" value="com.ery.meta.module.mag.login.LoginAction"/>
+        </create>
+        <create creator="db" javascript="UserAction">
+            <param name="class" value="com.ery.meta.module.mag.user.UserAction"/>
+        </create>
+        <create creator="db" javascript="MenuUserAction">
+            <param name="class" value="com.ery.meta.module.mag.menu.MenuUserAction"/>
+        </create>
+        <create creator="db" javascript="MenuRoleAction">
+            <param name="class" value="com.ery.meta.module.mag.menu.MenuRoleAction"/>
+        </create>
+        <create creator="db" javascript="DeptAction">
+            <param name="class" value="com.ery.meta.module.mag.dept.DeptAction"/>
+        </create>
+        <create creator="db" javascript="ZoneAction">
+            <param name="class" value="com.ery.meta.module.mag.zone.ZoneAction"/>
+        </create>
+        <create creator="db" javascript="StationAction">
+            <param name="class" value="com.ery.meta.module.mag.station.StationAction"/>
+        </create>
+        <create creator="db" javascript="MenuVisitLogAction">
+            <param name="class" value="com.ery.meta.module.mag.menu.MenuVisitLogAction"/>
+        </create>
+        <create creator="db" javascript="LoginLogAction">
+            <param name="class" value="com.ery.meta.module.mag.login.LoginLogAction"/>
+        </create>
+        <create creator="db" javascript="GroupAction">
+            <param name="class" value="com.ery.meta.module.mag.group.GroupAction"/>
+        </create>
+        <create creator="db" javascript="CodeAction">
+            <param name="class" value="com.ery.meta.sys.code.CodeAction"/>
+        </create>
+        <!--收藏夹-->
+        <create creator="db" javascript="FavoriteAction">
+            <param name="class" value="com.ery.meta.module.mag.favorite.FavoriteAction"/>
+        </create>
+        <!--日志-->
+        <create creator="db" javascript="LoginReportAction">
+            <param name="class" value="com.ery.meta.module.mag.login.LoginReportAction"/>
+        </create>
+         <create creator="db" javascript="ServerLogAction">
+            <param name="class" value="com.ery.meta.module.log.serverlog.ServerLogAction"/>
+        </create>
+        <create creator="new" javascript="SessionManager">
+            <param name="class" value="com.ery.meta.web.session.SessionManager"/>
+        </create>
+        <create creator="db" javascript="NoticeAction">
+            <param name="class" value="com.ery.meta.module.mag.notice.NoticeAction"/>
+        </create>
+        <create creator="db" javascript="SystemSourceAction">
+            <param name="class" value="com.ery.meta.module.mag.notice.SystemSourceAction"/>
+        </create>
+        <!--通用草稿保存  -->
+        <create creator="db" javascript="DraftAction">
+            <param name="class" value="com.ery.meta.module.mag.draft.DraftAction"/>
+        </create>
+
+        
+
+        <!--容器类转换器-->
+        <convert converter="nestedCollection" match="java.util.Collection"/>
+        <convert converter="nestedMap" match="java.util.Map"/>
+        <!--bean类转换器-->
+        <convert converter="bean" match="com.ery.meta.common.Page"/>
+        <convert converter="bean" match="com.ery.meta.common.Order"/>
+        <convert converter="bean" match="com.ery.meta.common.OprResult"/>
+        <!--枚举转换器-->
+        <convert converter="enum" match="com.ery.meta.common.OprResult$OprResultType"/>
+        <convert converter="enum" match="com.ery.meta.module.mag.login.ILoginType$LoginResult"/>
+
+    </allow>
+</dwr>

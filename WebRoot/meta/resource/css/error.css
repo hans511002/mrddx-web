@@ -1,0 +1,22 @@
+.titlediv {
+	text-indent: 5px;
+	color: #64B201;
+	height: 26px;
+	line-height: 26px;
+	margin-left: 1px;
+	font-weight: bold;
+}
+
+.content {
+	background: url("../images/errorbg.gif") no-repeat;
+	font-weight: bold;
+	height: 278px;
+	width: 458px;
+	line-height: 30px;
+	color: #000000;
+	padding-top: 50px;
+}
+
+
+
+

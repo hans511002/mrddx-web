@@ -6,19 +6,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.DateUtil;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
+import com.ery.meta.util.SystemSeqService;
 import com.ery.meta.web.session.User;
 
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
-
  * 
-
+ * 
+ * 
  * @description 登录日志记录DAO <br>
  * @date 2011-10-03
  */
@@ -30,10 +30,18 @@ public class LoginLogDAO extends MetaBaseDAO {
 	 * @param loginData
 	 * @return
 	 */
-	public int insertLoginLog(User user) {
-		String sql = " INSERT INTO META_MAG_LOGIN_LOG ( " + " LOG_ID, USER_ID,GROUP_ID, LOGIN_IP, LOGIN_MAC, "
-				+ " LOGIN_DATE) VALUES ( " + " ?,?,?,?,? ,TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
-		int pk = (int) queryForNextVal("SEQ_LOGIN_LOG_ID");
+	public long insertLoginLog(User user) {
+		String sql = " ";
+		long pk = 0;
+		if (isMysql()) {
+			pk = SystemSeqService.getSeqNextValue("META_MAG_LOGIN_LOG.LOG_ID", "SEQ_LOGIN_LOG_ID");
+			sql = "INSERT INTO META_MAG_LOGIN_LOG ( " + " LOG_ID, USER_ID,GROUP_ID, LOGIN_IP, LOGIN_MAC, "
+					+ " LOGIN_DATE) VALUES ( " + " ?,?,?,?,? ,STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s'))";
+		} else {
+			pk = queryForNextVal("SEQ_LOGIN_LOG_ID");
+			sql = " INSERT INTO META_MAG_LOGIN_LOG ( " + " LOG_ID, USER_ID,GROUP_ID, LOGIN_IP, LOGIN_MAC, "
+					+ " LOGIN_DATE) VALUES ( " + " ?,?,?,?,? ,TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+		}
 		Map<String, Object> userMap = user.getUserMap();
 		Object[] params = { pk, MapUtils.getIntValue(userMap, "userId"), MapUtils.getIntValue(userMap, "groupId"),
 				MapUtils.getString(userMap, "loginIp"), MapUtils.getString(userMap, "loginMac"),
@@ -47,18 +55,24 @@ public class LoginLogDAO extends MetaBaseDAO {
 	 * 
 	 * @throws Exception
 	 */
-	public void updateLoginOutTime(int logId) {
+	public void updateLoginOutTime(long logId) {
 		String sql = "UPDATE META_MAG_LOGIN_LOG SET LOGOFF_DATE=TO_DATE(?,'YYYY-MM-DD HH24:MI:SS') WHERE LOG_ID=?";
+		if (isMysql()) {
+			sql = "UPDATE META_MAG_LOGIN_LOG SET LOGOFF_DATE=STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') WHERE LOG_ID=?";
+		}
 		getDataAccess().execUpdate(sql, DateUtil.format(new Date(System.currentTimeMillis()), "yyyy-MM-dd HH:mm:ss"),
 				logId);
 	}
 
 	/**
-
+	 * 
 	 * @description 访问排名
-	 * @param queryData 查询时的过滤参数
-	 * @param hideStations 需要隐藏不需要统计的岗位集
-	 * @param page 分页参数
+	 * @param queryData
+	 *            查询时的过滤参数
+	 * @param hideStations
+	 *            需要隐藏不需要统计的岗位集
+	 * @param page
+	 *            分页参数
 	 * @return
 	 */
 	public List<Map<String, Object>> queryLoginLog(Map<String, Object> queryData, String hideStations, Page page) {
@@ -140,8 +154,8 @@ public class LoginLogDAO extends MetaBaseDAO {
 					params.add(queryData.get("zoneId"));
 				}
 			}
-			if (!Convert.toString(queryData.get("groupId")).equals("")
-					&& !Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
+			if (!Convert.toString(queryData.get("groupId")).equals("") &&
+					!Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
 				sql.append(" AND L.GROUP_ID=? ");
 				params.add(Integer.parseInt(queryData.get("groupId").toString()));
 			}
@@ -155,14 +169,17 @@ public class LoginLogDAO extends MetaBaseDAO {
 				+ "D.DEPT_NAME, S.STATION_NAME ORDER BY COUNT DESC,U.USER_ID ");
 
 		assert (page != null);
-		return getDataAccess().queryForList(SqlUtils.wrapPagingSql(sql.toString(), page), params.toArray());
+		return getDataAccess().queryForList(SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page),
+				params.toArray());
 	}
 
 	/**
-
+	 * 
 	 * @description 查询某一用户详细访问信息
-	 * @param queryData 查询时的过滤参数
-	 * @param page 分页参数，为空表示不分页
+	 * @param queryData
+	 *            查询时的过滤参数
+	 * @param page
+	 *            分页参数，为空表示不分页
 	 * @return
 	 */
 	public List<Map<String, Object>> queryLoginLogByID(Map<?, ?> queryData, String hideStations, Page page) {
@@ -226,8 +243,8 @@ public class LoginLogDAO extends MetaBaseDAO {
 					// e.printStackTrace();
 				}
 			}
-			if (!Convert.toString(queryData.get("groupId")).equals("")
-					&& !Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
+			if (!Convert.toString(queryData.get("groupId")).equals("") &&
+					!Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
 				sql.append(" AND L.GROUP_ID=? ");
 				params.add(Integer.parseInt(queryData.get("groupId").toString()));
 			}
@@ -239,14 +256,17 @@ public class LoginLogDAO extends MetaBaseDAO {
 		sql.append("ORDER BY L.LOG_ID DESC ");
 
 		assert (page != null);
-		return getDataAccess().queryForList(SqlUtils.wrapPagingSql(sql.toString(), page), params.toArray());
+		return getDataAccess().queryForList(SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page),
+				params.toArray());
 	}
 
 	/**
 	 * 获取用户访问报表
 	 * 
-	 * @param queryData 查询条件
-	 * @param hideStations 隐藏岗位
+	 * @param queryData
+	 *            查询条件
+	 * @param hideStations
+	 *            隐藏岗位
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> queryLoginReport(Map<?, ?> queryData, String hideStations) {
@@ -297,8 +317,8 @@ public class LoginLogDAO extends MetaBaseDAO {
 			}
 			sql.append(") ");
 		}
-		if (queryData != null && !Convert.toString(queryData.get("groupId")).equals("")
-				&& !Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
+		if (queryData != null && !Convert.toString(queryData.get("groupId")).equals("") &&
+				!Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
 			sql.append(" AND L.GROUP_ID=? ");
 			params.add(Integer.parseInt(queryData.get("groupId").toString()));
 		}
@@ -347,8 +367,8 @@ public class LoginLogDAO extends MetaBaseDAO {
 			}
 			sql.append(") ");
 		}
-		if (queryData != null && !Convert.toString(queryData.get("groupId")).equals("")
-				&& !Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
+		if (queryData != null && !Convert.toString(queryData.get("groupId")).equals("") &&
+				!Convert.toString(queryData.get("groupId")).equalsIgnoreCase("null")) {
 			sql.append(" AND L.GROUP_ID=? ");
 			params.add(Integer.parseInt(queryData.get("groupId").toString()));
 		}
@@ -364,7 +384,8 @@ public class LoginLogDAO extends MetaBaseDAO {
 	/**
 	 * 获取指定菜单ID 的列表
 	 * 
-	 * @param str 菜单ID字符串 格式为：“10，11,12,13”
+	 * @param str
+	 *            菜单ID字符串 格式为：“10，11,12,13”
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> getMenuName(String str) {
@@ -376,8 +397,10 @@ public class LoginLogDAO extends MetaBaseDAO {
 	/**
 	 * 条件查询菜单访问统计
 	 * 
-	 * @param queryData 查询条件
-	 * @param hideStations 隐藏岗位
+	 * @param queryData
+	 *            查询条件
+	 * @param hideStations
+	 *            隐藏岗位
 	 * @param --menuId 菜单ID
 	 * @return 查询结果
 	 */

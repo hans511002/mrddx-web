@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.Common;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
- * Created by IntelliJ IDEA. User: Administrator Date: 13-4-24 Time: 下午5:01 To
- * change this template use File | Settings | File Templates.
+ * Created by IntelliJ IDEA. User: Administrator Date: 13-4-24 Time: 下午5:01 To change this template use File | Settings | File
+ * Templates.
  */
 public class AuthorityDao extends MetaBaseDAO {
 	public List<Map<String, Object>> queryForAuthorityInfo(Map<String, Object> data, Page page) {
@@ -49,7 +48,7 @@ public class AuthorityDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -138,8 +137,8 @@ public class AuthorityDao extends MetaBaseDAO {
 		int ruleId = Convert.toInt(MapUtils.getString(data, "ruleId"), -1);
 		int userId = Convert.toInt(MapUtils.getString(data, "userId"), -1);
 		String ruleName = MapUtils.getString(data, "ruleName").toUpperCase();
-		String sql = "SELECT QRY_RULE_ID,QYR_RULE_NAME FROM HB_QRY_RULE  WHERE qry_rule_id IN"
-				+ "(SELECT qry_rule_id FROM hb_qry_rule_user_rel  WHERE user_id = '" + userId + "')";
+		String sql = "SELECT QRY_RULE_ID,QYR_RULE_NAME FROM HB_QRY_RULE  WHERE qry_rule_id IN" +
+				"(SELECT qry_rule_id FROM hb_qry_rule_user_rel  WHERE user_id = '" + userId + "')";
 		if (MapUtils.getString(data, "ruleName") != null && !"".equals(MapUtils.getString(data, "ruleName"))) {
 			if (!ruleName.contains("%") && !ruleName.contains("_")) {
 				sql += " AND UPPER(TABLE_NAME) LIKE ? ESCAPE '/'";
@@ -158,7 +157,7 @@ public class AuthorityDao extends MetaBaseDAO {
 		sql += " ORDER BY QRY_RULE_ID DESC";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 

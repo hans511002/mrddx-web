@@ -10,17 +10,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.ery.base.support.jdbc.DataAccess;
+import com.ery.base.support.utils.MapUtils;
+import com.ery.hadoop.hq.utils.StringUtil;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 import com.ery.meta.module.mag.login.LoginConstant;
 import com.ery.meta.web.session.SessionManager;
 
-import com.ery.hadoop.hq.utils.StringUtil;
-import com.ery.base.support.utils.MapUtils;
-
 /*******************************************************************************
-
+ * 
  * 
  * Collectname： AnalysisDao Description：
  * 
@@ -1087,91 +1087,186 @@ public class AnalysisDao extends MetaBaseDAO {
 		long end = StringUtil.stringToLong(endTime, StringUtil.DATE_FORMAT_TYPE1, -1);
 		long currentData = StringUtil.dateToLong(new Date(), StringUtil.DATE_FORMAT_TYPE4);
 		String currentDateBegin = StringUtil.dateToString(new Date(), StringUtil.DATE_FORMAT_TYPE4);
-		String sql = "";
+		DataAccess access = getDataAccess();
+		String sql = null;
+
 		if (col_type == 0) {
 			if (currentData > end) {// 获取历史数据
-				sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (select M.COL_ID," +
-						" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," + " SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
-						" TO_CHAR(TO_DATE(M.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
-						" from MR_FTP_COL_STATISTICS_DATE M" + " WHERE M.COL_ID = ?" +
-						" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" + " TO_CHAR(TO_DATE('" + startTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" + " TO_CHAR(TO_DATE('" + endTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
-						" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID) N," + " MR_FTP_COL_JOB S" +
-						" WHERE N.COL_ID = S.COL_ID";
-				return getDataAccess().queryForList(sql, col_id);
+				if ("mysql".equals(access.getDatabaseName())) {
+					sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (select M.COL_ID," +
+							" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," +
+							" SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
+							" DATE_FORMAT(STR_TO_DATE(M.RUN_YEAR_MONTH_DAY, '%Y%m%d'), '%Y-%m-%d') AS SHOW_DATE" +
+							" from MR_FTP_COL_STATISTICS_DATE M" + " WHERE M.COL_ID = ?" +
+							" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" + " DATE_FORMAT(STR_TO_DATE('" +
+							startTime + "', '%Y-%m-%d %H:%i:%s'), '%Y%m%d') AND" + " DATE_FORMAT(STR_TO_DATE('" +
+							endTime + "', '%Y-%m-%d %H:%i:%s'), '%Y%m%d')" +
+							" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID) N," + " MR_FTP_COL_JOB S" +
+							" WHERE N.COL_ID = S.COL_ID";
+				} else {
+					sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (select M.COL_ID," +
+							" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," +
+							" SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
+							" TO_CHAR(TO_DATE(M.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
+							" from MR_FTP_COL_STATISTICS_DATE M" + " WHERE M.COL_ID = ?" +
+							" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" + " TO_CHAR(TO_DATE('" + startTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" + " TO_CHAR(TO_DATE('" + endTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
+							" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID) N," + " MR_FTP_COL_JOB S" +
+							" WHERE N.COL_ID = S.COL_ID";
+				}
+				return access.queryForList(sql, col_id);
 			} else {// 历史数据和当前数据
-				sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from ((SELECT A.Col_Id, "
-						+ "  SUM(CASE A.STATUS WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
-						+ "  SUM(CASE A.STATUS WHEN 1 THEN 0 ELSE 1 END) FAIL,"
-						+ "  TO_CHAR(TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD') AS SHOW_DATE"
-						+ " FROM MR_FTP_COL_FILE_LOG A" + " LEFT JOIN MR_FTP_COL_JOB B" + " ON A.COL_ID = B.COL_ID"
-						+ " WHERE A.COL_ID = ?" + " AND TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS') > TO_DATE('" +
-						currentDateBegin +
-						" 00:00:00', 'YYYY-MM-DD HH24:MI:SS')" +
-						" AND TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS') < TO_DATE('" +
-						endTime +
-						"', 'YYYY-MM-DD HH24:MI:SS')" +
-						" GROUP BY TO_CHAR(TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD'), A.Col_Id)" +
-						"union all" +
-						" (select M.COL_ID," +
-						" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," +
-						" SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
-						" TO_CHAR(TO_DATE(M.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
-						" from MR_FTP_COL_STATISTICS_DATE M" +
-						" WHERE M.COL_ID = ?" +
-						" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" +
-						" TO_CHAR(TO_DATE('" +
-						startTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" +
-						" TO_CHAR(TO_DATE('" +
-						currentDateBegin +
-						" 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
-						" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID)) N," +
-						" MR_FTP_COL_JOB S" +
-						" WHERE N.COL_ID = S.COL_ID";
-				return getDataAccess().queryForList(sql, col_id, col_id);
+				if ("mysql".equals(access.getDatabaseName())) {
+					sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from ((SELECT A.Col_Id, "
+							+ "  SUM(CASE A.STATUS WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
+							+ "  SUM(CASE A.STATUS WHEN 1 THEN 0 ELSE 1 END) FAIL,"
+							+ "  DATE_FORMAT(STR_TO_DATE(END_TIME, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d') AS SHOW_DATE"
+							+ " FROM MR_FTP_COL_FILE_LOG A" + " LEFT JOIN MR_FTP_COL_JOB B" + " ON A.COL_ID = B.COL_ID"
+							+ " WHERE A.COL_ID = ?" + " AND STR_TO_DATE(END_TIME, '%Y-%m-%d %H:%i:%s') > TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', 'YYYY-MM-DD HH24:MI:SS')" +
+							" AND STR_TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS') < TO_DATE('" +
+							endTime +
+							"', 'YYYY-MM-DD HH24:MI:SS')" +
+							" GROUP BY DATE_FORMAT(STR_TO_DATE(END_TIME, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d'), A.Col_Id)" +
+							"union all" +
+							" (select M.COL_ID," +
+							" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," +
+							" SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
+							" DATE_FORMAT(STR_TO_DATE(M.RUN_YEAR_MONTH_DAY, '%Y%m%d'), '%Y-%m-%d') AS SHOW_DATE" +
+							" from MR_FTP_COL_STATISTICS_DATE M" +
+							" WHERE M.COL_ID = ?" +
+							" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" +
+							" DATE_FORMAT(STR_TO_DATE('" +
+							startTime +
+							"', '%Y-%m-%d %H:%i:%s'), '%Y%m%d') AND" +
+							" DATE_FORMAT(STR_TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', '%Y-%m-%d %H:%i:%s'), '%Y%m%d')" +
+							" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID)) N," +
+							" MR_FTP_COL_JOB S" +
+							" WHERE N.COL_ID = S.COL_ID";
+				} else {
+					sql = "select S.COL_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from ((SELECT A.Col_Id, "
+							+ "  SUM(CASE A.STATUS WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
+							+ "  SUM(CASE A.STATUS WHEN 1 THEN 0 ELSE 1 END) FAIL,"
+							+ "  TO_CHAR(TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD') AS SHOW_DATE"
+							+ " FROM MR_FTP_COL_FILE_LOG A" + " LEFT JOIN MR_FTP_COL_JOB B" + " ON A.COL_ID = B.COL_ID"
+							+ " WHERE A.COL_ID = ?" + " AND TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS') > TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', 'YYYY-MM-DD HH24:MI:SS')" +
+							" AND TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS') < TO_DATE('" +
+							endTime +
+							"', 'YYYY-MM-DD HH24:MI:SS')" +
+							" GROUP BY TO_CHAR(TO_DATE(END_TIME, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD'), A.Col_Id)" +
+							"union all" +
+							" (select M.COL_ID," +
+							" SUM(NVL(M.COL_SUCCESS_COUNT, 0)) AS SUCCESS," +
+							" SUM(NVL(M.Col_Fail_Count, 0)) AS FAIL," +
+							" TO_CHAR(TO_DATE(M.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
+							" from MR_FTP_COL_STATISTICS_DATE M" +
+							" WHERE M.COL_ID = ?" +
+							" AND M.RUN_YEAR_MONTH_DAY || M.RUN_TIME BETWEEN" +
+							" TO_CHAR(TO_DATE('" +
+							startTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" +
+							" TO_CHAR(TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
+							" GROUP BY M.RUN_YEAR_MONTH_DAY, M.COL_ID)) N," +
+							" MR_FTP_COL_JOB S" +
+							" WHERE N.COL_ID = S.COL_ID";
+				}
+
+				return access.queryForList(sql, col_id, col_id);
 			}
 		} else {
 			if (currentData > end) {// 获取历史数据
-				sql = " select S.JOB_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (SELECT T.JOB_ID," +
-						" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," + " SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
-						" TO_CHAR(TO_DATE(T.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
-						" FROM MR_STATISTICS_DATE T" + " WHERE T.JOB_ID = ?" +
-						" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" + " TO_CHAR(TO_DATE('" + startTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" + " TO_CHAR(TO_DATE('" + endTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
-						" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID) N," + " MR_JOB S" + " WHERE N.JOB_ID = S.JOB_ID";
-				return getDataAccess().queryForList(sql, col_id);
+				if ("mysql".equals(access.getDatabaseName())) {
+					sql = " select S.JOB_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (SELECT T.JOB_ID," +
+							" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," +
+							" SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
+							" DATE_FORMAT(STR_TO_DATE(T.RUN_YEAR_MONTH_DAY, '%Y%m%d'), '%Y-%m-%d') AS SHOW_DATE" +
+							" FROM MR_STATISTICS_DATE T" + " WHERE T.JOB_ID = ?" +
+							" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" + " DATE_FORMAT(STR_TO_DATE('" +
+							startTime + "', '%Y-%m-%d %H:%i:%s'), '%Y%m%d') AND" + " DATE_FORMAT(STR_TO_DATE('" +
+							endTime + "', '%Y-%m-%d %H:%i:%s'), '%Y%m%d')" +
+							" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID) N," + " MR_JOB S" + " WHERE N.JOB_ID = S.JOB_ID";
+				} else {
+					sql = " select S.JOB_NAME AS COL_NAME, SUCCESS, FAIL, SHOW_DATE" + " from (SELECT T.JOB_ID," +
+							" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," +
+							" SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
+							" TO_CHAR(TO_DATE(T.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
+							" FROM MR_STATISTICS_DATE T" + " WHERE T.JOB_ID = ?" +
+							" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" + " TO_CHAR(TO_DATE('" + startTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" + " TO_CHAR(TO_DATE('" + endTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
+							" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID) N," + " MR_JOB S" + " WHERE N.JOB_ID = S.JOB_ID";
+				}
+				return access.queryForList(sql, col_id);
 			} else {// 历史数据和当前数据
-				sql = "select S.JOB_NAME AS COL_NAME, SUCCESS,FAIL,SHOW_DATE from (" + " (SELECT M.JOB_ID AS JOB_ID,"
-						+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
-						+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 0 ELSE 1 END) FAIL,"
-						+ " TO_CHAR(START_DATE, 'YYYY-MM-DD') AS SHOW_DATE" + " FROM MR_JOB_RUN_LOG T"
-						+ " LEFT JOIN MR_JOB M" + " ON M.JOB_ID = T.JOB_ID" + " WHERE T.JOB_ID = ?"
-						+ " AND T.END_DATE > TO_DATE('" +
-						currentDateBegin +
-						" 00:00:00', 'YYYY-MM-DD HH24:MI:SS')" +
-						" AND T.END_DATE < TO_DATE('" +
-						endTime +
-						"', 'YYYY-MM-DD HH24:MI:SS')" +
-						" GROUP BY TO_CHAR(START_DATE, 'YYYY-MM-DD'), M.JOB_ID)" +
-						"union all" +
-						" (SELECT T.JOB_ID, " +
-						" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," +
-						" SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
-						" TO_CHAR(TO_DATE(T.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
-						" FROM MR_STATISTICS_DATE T" +
-						" WHERE T.JOB_ID = ?" +
-						" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" +
-						" TO_CHAR(TO_DATE('" +
-						startTime +
-						"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" +
-						" TO_CHAR(TO_DATE('" +
-						currentDateBegin +
-						" 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
-						" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID)" + ")N," + "MR_JOB S WHERE N.JOB_ID = S.JOB_ID";
-				return getDataAccess().queryForList(sql, col_id, col_id);
+				if ("mysql".equals(access.getDatabaseName())) {
+					sql = "select S.JOB_NAME AS COL_NAME, SUCCESS,FAIL,SHOW_DATE from ("
+							+ " (SELECT M.JOB_ID AS JOB_ID,"
+							+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
+							+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 0 ELSE 1 END) FAIL,"
+							+ " DATE_FORMAT(START_DATE, '%Y-%m-%d') AS SHOW_DATE" + " FROM MR_JOB_RUN_LOG T"
+							+ " LEFT JOIN MR_JOB M" + " ON M.JOB_ID = T.JOB_ID" + " WHERE T.JOB_ID = ?"
+							+ " AND T.END_DATE > STR_TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', '%Y-%m-%d %H:%i:%s')" +
+							" AND T.END_DATE < STR_TO_DATE('" +
+							endTime +
+							"', '%Y-%m-%d %H:%i:%s')" +
+							" GROUP BY DATE_FORMAT(START_DATE, '%Y-%m-%d'), M.JOB_ID)" +
+							"union all" +
+							" (SELECT T.JOB_ID, " +
+							" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," +
+							" SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
+							" DATE_FORMAT(STR_TO_DATE(T.RUN_YEAR_MONTH_DAY, '%Y%m%d'), '%Y-%m-%d') AS SHOW_DATE" +
+							" FROM MR_STATISTICS_DATE T" +
+							" WHERE T.JOB_ID = ?" +
+							" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" +
+							" TO_CHAR(STR_TO_DATE('" +
+							startTime +
+							"', '%Y-%m-%d %H:%i:%s'), '%Y%m%d') AND" +
+							" TO_CHAR(STR_TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', '%Y-%m-%d %H:%i:%s'), '%Y%m%d')" +
+							" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID)" + ")N," + "MR_JOB S WHERE N.JOB_ID = S.JOB_ID";
+				} else {
+					sql = "select S.JOB_NAME AS COL_NAME, SUCCESS,FAIL,SHOW_DATE from ("
+							+ " (SELECT M.JOB_ID AS JOB_ID,"
+							+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 1 ELSE 0 END) SUCCESS,"
+							+ " SUM(CASE T.RUN_FLAG WHEN 1 THEN 0 ELSE 1 END) FAIL,"
+							+ " TO_CHAR(START_DATE, 'YYYY-MM-DD') AS SHOW_DATE" + " FROM MR_JOB_RUN_LOG T"
+							+ " LEFT JOIN MR_JOB M" + " ON M.JOB_ID = T.JOB_ID" + " WHERE T.JOB_ID = ?"
+							+ " AND T.END_DATE > TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', 'YYYY-MM-DD HH24:MI:SS')" +
+							" AND T.END_DATE < TO_DATE('" +
+							endTime +
+							"', 'YYYY-MM-DD HH24:MI:SS')" +
+							" GROUP BY TO_CHAR(START_DATE, 'YYYY-MM-DD'), M.JOB_ID)" +
+							"union all" +
+							" (SELECT T.JOB_ID, " +
+							" SUM(NVL(T.Job_Success_Count, 0)) AS SUCCESS," +
+							" SUM(NVL(T.JOB_FAIL_COUNT, 0)) AS FAIL," +
+							" TO_CHAR(TO_DATE(T.RUN_YEAR_MONTH_DAY, 'YYYYMMDDHH'), 'YYYY-MM-DD') AS SHOW_DATE" +
+							" FROM MR_STATISTICS_DATE T" +
+							" WHERE T.JOB_ID = ?" +
+							" AND T.RUN_YEAR_MONTH_DAY || T.RUN_TIME BETWEEN" +
+							" TO_CHAR(TO_DATE('" +
+							startTime +
+							"', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24') AND" +
+							" TO_CHAR(TO_DATE('" +
+							currentDateBegin +
+							" 00:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'YYYYMMDDHH24')" +
+							" GROUP BY T.RUN_YEAR_MONTH_DAY, T.JOB_ID)" + ")N," + "MR_JOB S WHERE N.JOB_ID = S.JOB_ID";
+				}
+
+				return access.queryForList(sql, col_id, col_id);
 			}
 		}
 	}
@@ -1425,7 +1520,7 @@ public class AnalysisDao extends MetaBaseDAO {
 		sql += " ORDER BY A.START_TIME DESC ";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryForList(sql, logId);
 	}
@@ -1472,7 +1567,7 @@ public class AnalysisDao extends MetaBaseDAO {
 		}
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryForList(sql);
 	}

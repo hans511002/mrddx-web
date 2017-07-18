@@ -1,0 +1,17 @@
+/* CSS Document */
+body{margin:0;padding:0 0 12px 0;font-size:12px;line-height:22px;font-family:"����","Arial Narrow",HELVETICA;/* background:#ddd;*/position:relative;}
+form,ul,li,p,h1,h2,h3,h4,h5,h6{margin:0;padding:0;}input,select{font-size:12px;line-height:16px;}img{border:0;}ul,li{list-style-type:none;}a:link,a:visited,a:hover,a:active{ text-decoration:none;}input,a{thide-focus: expression(this.hideFocus=true);}input,a:focus{outline:none}
+.clear{ clear:none;}.checkbox{ vertical-align:-2px;}.radio{ vertical-align:-2px;}
+.input{border:1px solid #c1c9cb; height:18px; line-height:18px; background:#fff; width:120px; padding-left:5px;/*-moz-border-radius:4px; -webkit-border-radius: 4px;border-radius:4px;*/ margin:0 2px;box-shadow: 1px 1px 3px #F3F3F3 inset;}
+.input:focus{ height:18px; background-color:#fafcfd;border-color:#17b4eb #17b4eb #17b4eb #17b4eb;border-style:solid;border-width:1px;box-shadow:1px 1px 3px #d0dee6 inset;}
+.input2{border:1px solid #c1c9cb; height:18px; line-height:18px; background:#fff; padding-left:5px;/*-moz-border-radius:4px; -webkit-border-radius: 4px;border-radius:4px;*/ margin:0 2px;box-shadow: 1px 1px 3px #F3F3F3 inset;}
+.input2:focus{ height:18px; background-color:#fafcfd;border-color:#17b4eb #17b4eb #17b4eb #17b4eb;border-style:solid;border-width:1px;box-shadow:1px 1px 3px #d0dee6 inset;}
+
+.btn1{ width:57px; height:24px; line-height:24px; text-align:center; background:url(../images/btn_sprite.png) 0 0 no-repeat; border-style:none; color:#fff; cursor:pointer;margin-left:10px;}
+.btn2{width:57px; height:24px; line-height:24px; text-align:center; background:url(../images/btn_sprite.png) -62px 0 no-repeat; border-style:none; color:#7a7f81;cursor:pointer; margin-left:10px;}
+.textarea{ margin:5px auto; width:98%;min-height:50px; height:auto!important; height:50px;-webkit-rtl-ordering: logical;-webkit-user-select: text;-webkit-box-orient: vertical;overflow-x: hidden;overflow-y: auto;word-wrap: break-word;outline: none;border:1px solid #ccc; margin-left:2px;}
+.textarea:focus{border-color:#17b4eb #17b4eb #17b4eb #17b4eb;border-style:solid;border-width:1px;box-shadow:1px 1px 3px #d0dee6 inset;}
+.clear{ clear:none;}
+.main{ width:960px; margin: 10px auto;}.Required{ color:#f00; margin-right:3px;}
+.yc{ display:block;}
+

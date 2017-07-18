@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.utils.MapUtils;
-
 /**
-
  * 
-
+ * 
+ * 
  * @description
  * @date 2013-04-22
  */
@@ -54,7 +53,7 @@ public class JobLogDAO extends MetaBaseDAO {
 
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -80,7 +79,7 @@ public class JobLogDAO extends MetaBaseDAO {
 		sql += " ORDER BY T.LOG_TIME DESC ";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 
 		return getDataAccess().queryForList(sql);
@@ -112,7 +111,7 @@ public class JobLogDAO extends MetaBaseDAO {
 		sql += " ORDER BY T.LOG_ID ";
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -137,7 +136,7 @@ public class JobLogDAO extends MetaBaseDAO {
 		sql += " ORDER BY T.LOG_ID ";
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -169,7 +168,7 @@ public class JobLogDAO extends MetaBaseDAO {
 		sql += " ORDER BY T.LOG_ID ";
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -195,7 +194,7 @@ public class JobLogDAO extends MetaBaseDAO {
 		sql += " ORDER BY T.LOG_ID ";
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;

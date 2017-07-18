@@ -1,0 +1,10 @@
+.tabDiv {width:100%; float:left;}
+.tabUl { padding-right: 0px; padding-left: 0px; padding-bottom: 0px; margin: 0px 0px 0px 0px; width: 99%; padding-top: 0px; height: 23px;}
+.tabUl li { background: url(../images/tagleft.gif) no-repeat left bottom; float: left; margin-right: 1px; list-style-type: none; height: 23px;}
+.tabUl li a { padding-right: 10px; padding-left: 10px; background: url(../images/tagright.gif) no-repeat right bottom; float: left; padding-bottom: 0px; color: #666; line-height: 23px; padding-top: 0px; height: 23px; text-decoration: none;}
+.tabUl li.emptyTag { background: none transparent scroll repeat 0% 0%; width: 4px }
+.tabUl li.selectTag { background-position: left top; margin-bottom: -2px; position: relative; height: 23px }
+.tabUl li.selectTag a { background-position: right top; color: #666; line-height: 23px; height: 23px }
+.tagContentDiv { border-right: #dadada 1px solid; padding-right: 1px; border-top: #dadada 1px solid; padding-left: 1px; padding-bottom: 1px; border-left: #dadada 1px solid; padding-top: 1px; border-bottom: #dadada 1px solid; background-color: #fff }
+.tagContent { display: none; width: 100%; color: #474747; height: auto }
+.tagContentDiv div.selectTag { display: block }

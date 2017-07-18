@@ -50,8 +50,8 @@ public class MonitorDAO extends MetaBaseDAO {
 		String userNamecn = formatUser.get("userNamecn").toString();
 		String adminFlag = formatUser.get("adminFlag").toString();
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		if (MonitorData.getMonitorConfig().get("ISAUTOREFRESH").toString().equals("0")
-				&& MonitorData.getMonitorConfig().get("ISMANUREFRESH").toString().equals("0")) {
+		if (MonitorData.getMonitorConfig().get("ISAUTOREFRESH").toString().equals("0") &&
+				MonitorData.getMonitorConfig().get("ISMANUREFRESH").toString().equals("0")) {
 			Map<String, Object> m = new HashMap<String, Object>();
 			m.put("USER_ID", userId);
 			m.put("USER_NAMECN", userNamecn);
@@ -140,25 +140,25 @@ public class MonitorDAO extends MetaBaseDAO {
 					} else if (map2.get("STATUS").toString().equals("0")) {
 						map_runing++;
 					}
-					if (null != map2.get("IS_OUTPUT_RENAME") && null != map2.get("OUTPUT_RENAME_STATUS")
-							&& map2.get("IS_OUTPUT_RENAME").toString().equals("1")
-							&& map2.get("OUTPUT_RENAME_STATUS").toString().equals("1")) {
+					if (null != map2.get("IS_OUTPUT_RENAME") && null != map2.get("OUTPUT_RENAME_STATUS") &&
+							map2.get("IS_OUTPUT_RENAME").toString().equals("1") &&
+							map2.get("OUTPUT_RENAME_STATUS").toString().equals("1")) {
 						output_rename++;
 					}
-					if (null != map2.get("IS_MOVE_OUTPUT") && null != map2.get("MOVE_OUTPUT_STATUS")
-							&& map2.get("IS_MOVE_OUTPUT").toString().equals("1")
-							&& map2.get("MOVE_OUTPUT_STATUS").toString().equals("1")) {
+					if (null != map2.get("IS_MOVE_OUTPUT") && null != map2.get("MOVE_OUTPUT_STATUS") &&
+							map2.get("IS_MOVE_OUTPUT").toString().equals("1") &&
+							map2.get("MOVE_OUTPUT_STATUS").toString().equals("1")) {
 						move_output++;
 					}
-					if (null != map2.get("DELETE_INPUT_STATUS")
-							&& map2.get("DELETE_INPUT_STATUS").toString().equals("1")) {
+					if (null != map2.get("DELETE_INPUT_STATUS") &&
+							map2.get("DELETE_INPUT_STATUS").toString().equals("1")) {
 						delete_input++;
 					}
 					if (null != map2.get("MOVE_INPUT_STATUS") && map2.get("MOVE_INPUT_STATUS").toString().equals("1")) {
 						move_input++;
 					}
-					if (null != map2.get("INPUT_RENAME_STATUS")
-							&& map2.get("INPUT_RENAME_STATUS").toString().equals("1")) {
+					if (null != map2.get("INPUT_RENAME_STATUS") &&
+							map2.get("INPUT_RENAME_STATUS").toString().equals("1")) {
 						input_rename++;
 					}
 				}
@@ -182,11 +182,11 @@ public class MonitorDAO extends MetaBaseDAO {
 				// logoDetailData.put("COL"+map.get("LOG_ID").toString(),
 				// col_detail_log_list);
 			} else {
-				sql = "	select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = "
-						+ map.get("LOG_ID")
-						+ " union all "
-						+ " select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = "
-						+ map.get("LOG_ID") + " order by START_DATE desc";
+				sql = "	select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = " +
+						map.get("LOG_ID") +
+						" union all " +
+						" select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = " +
+						map.get("LOG_ID") + " order by START_DATE desc";
 				List<Map<String, Object>> col_detail_log_list = getDataAccess().queryForList(sql);
 				int success = 0;// 成功数
 				int failure = 0;// 失败数
@@ -259,20 +259,20 @@ public class MonitorDAO extends MetaBaseDAO {
 			task_type = "2";
 			log_id = log_id.replace("JOB", "");
 		}
-		String sql = "SELECT U.USER_ID,U.USER_NAMECN,t.* FROM ("
-				+ " select FL.COL_LOG_ID LOG_ID,FL.COL_ID TASK_ID ,NVL(FL.QUEUE ,'default') QUEUE,1 TASK_TYPE,CJ.COL_ORIGIN TASK_JOB_TYPE, FL.START_TIME, MT.TYPE_ID JOB_TYPE,MT.TYPE_NAME JOB_TYPE_NAME, "
-				+ " '['||CJ.COL_ID||']-'||CJ.COL_NAME JOB_NAME,nvl(FL.FILE_NUM,0) FILE_NUM,FL.FILE_TOTALSIZE from MR_FTP_COL_FILE_LOG FL"
-				+ " inner join MR_FTP_COL_JOB CJ ON FL.COL_ID = CJ.COL_ID"
-				+ " inner join META_MR_TYPE MT ON CJ.COL_TYPE=MT.TYPE_ID"
-				+ " union all "
-				+ " select JL.LOG_ID LOG_ID,JL.JOB_ID TASK_ID,NVL(JL.QUEUE ,'default') QUEUE,2 TASK_TYPE,2 TASK_JOB_TYPE,to_char(JL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_TIME, MT.TYPE_ID JOB_TYPE,"
-				+ " MT.TYPE_NAME JOB_TYPE_NAME, "
-				+ " '['||JL.LOG_ID||']-'||MJ.JOB_NAME JOB_NAME,nvl(MJ.MAP_TASKS + MJ.REDUCE_TASKS,0) FILE_NUM,JL.ALL_FILE_SIZE FILE_TOTALSIZE from MR_JOB_RUN_LOG JL"
-				+ " INNER JOIN MR_JOB MJ ON JL.JOB_ID = MJ.JOB_ID"
-				+ " inner join META_MR_TYPE MT ON MJ.JOB_TYPE=MT.TYPE_ID"
-				+ " ) T INNER JOIN META_MR_USER_AUTHOR UA ON T.TASK_ID = UA.TASK_ID AND T.TASK_TYPE = UA.TASK_TYPE AND UA.USER_ID =UA.CREATE_USER_ID"
-				+ " INNER JOIN META_MAG_USER U ON UA.USER_ID = U.USER_ID " + " WHERE T.LOG_ID = " + log_id
-				+ " and T.TASK_TYPE = " + task_type + " ORDER BY START_TIME DESC";
+		String sql = "SELECT U.USER_ID,U.USER_NAMECN,t.* FROM (" +
+				" select FL.COL_LOG_ID LOG_ID,FL.COL_ID TASK_ID ,NVL(FL.QUEUE ,'default') QUEUE,1 TASK_TYPE,CJ.COL_ORIGIN TASK_JOB_TYPE, FL.START_TIME, MT.TYPE_ID JOB_TYPE,MT.TYPE_NAME JOB_TYPE_NAME, " +
+				" '['||CJ.COL_ID||']-'||CJ.COL_NAME JOB_NAME,nvl(FL.FILE_NUM,0) FILE_NUM,FL.FILE_TOTALSIZE from MR_FTP_COL_FILE_LOG FL" +
+				" inner join MR_FTP_COL_JOB CJ ON FL.COL_ID = CJ.COL_ID" +
+				" inner join META_MR_TYPE MT ON CJ.COL_TYPE=MT.TYPE_ID" +
+				" union all " +
+				" select JL.LOG_ID LOG_ID,JL.JOB_ID TASK_ID,NVL(JL.QUEUE ,'default') QUEUE,2 TASK_TYPE,2 TASK_JOB_TYPE,to_char(JL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_TIME, MT.TYPE_ID JOB_TYPE," +
+				" MT.TYPE_NAME JOB_TYPE_NAME, " +
+				" '['||JL.LOG_ID||']-'||MJ.JOB_NAME JOB_NAME,nvl(MJ.MAP_TASKS + MJ.REDUCE_TASKS,0) FILE_NUM,JL.ALL_FILE_SIZE FILE_TOTALSIZE from MR_JOB_RUN_LOG JL" +
+				" INNER JOIN MR_JOB MJ ON JL.JOB_ID = MJ.JOB_ID" +
+				" inner join META_MR_TYPE MT ON MJ.JOB_TYPE=MT.TYPE_ID" +
+				" ) T INNER JOIN META_MR_USER_AUTHOR UA ON T.TASK_ID = UA.TASK_ID AND T.TASK_TYPE = UA.TASK_TYPE AND UA.USER_ID =UA.CREATE_USER_ID" +
+				" INNER JOIN META_MAG_USER U ON UA.USER_ID = U.USER_ID " + " WHERE T.LOG_ID = " + log_id +
+				" and T.TASK_TYPE = " + task_type + " ORDER BY START_TIME DESC";
 		Map<String, Object> map = getDataAccess().queryForMap(sql);
 
 		if (map.get("TASK_TYPE").toString().equals("1")) {
@@ -294,14 +294,14 @@ public class MonitorDAO extends MetaBaseDAO {
 				} else if (map2.get("STATUS").toString().equals("0")) {
 					map_runing++;
 				}
-				if (null != map2.get("IS_OUTPUT_RENAME") && null != map2.get("OUTPUT_RENAME_STATUS")
-						&& map2.get("IS_OUTPUT_RENAME").toString().equals("1")
-						&& map2.get("OUTPUT_RENAME_STATUS").toString().equals("1")) {
+				if (null != map2.get("IS_OUTPUT_RENAME") && null != map2.get("OUTPUT_RENAME_STATUS") &&
+						map2.get("IS_OUTPUT_RENAME").toString().equals("1") &&
+						map2.get("OUTPUT_RENAME_STATUS").toString().equals("1")) {
 					output_rename++;
 				}
-				if (null != map2.get("IS_MOVE_OUTPUT") && null != map2.get("MOVE_OUTPUT_STATUS")
-						&& map2.get("IS_MOVE_OUTPUT").toString().equals("1")
-						&& map2.get("MOVE_OUTPUT_STATUS").toString().equals("1")) {
+				if (null != map2.get("IS_MOVE_OUTPUT") && null != map2.get("MOVE_OUTPUT_STATUS") &&
+						map2.get("IS_MOVE_OUTPUT").toString().equals("1") &&
+						map2.get("MOVE_OUTPUT_STATUS").toString().equals("1")) {
 					move_output++;
 				}
 				if (null != map2.get("DELETE_INPUT_STATUS") && map2.get("DELETE_INPUT_STATUS").toString().equals("1")) {
@@ -331,11 +331,11 @@ public class MonitorDAO extends MetaBaseDAO {
 				map.put("SCHEDULE", ((success + failure) * 100 / filenumber) + "%");
 			}
 		} else {
-			sql = "	select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = "
-					+ map.get("LOG_ID")
-					+ " union all "
-					+ " select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = "
-					+ map.get("LOG_ID") + " order by START_DATE desc";
+			sql = "	select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = " +
+					map.get("LOG_ID") +
+					" union all " +
+					" select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = " +
+					map.get("LOG_ID") + " order by START_DATE desc";
 			List<Map<String, Object>> col_detail_log_list = getDataAccess().queryForList(sql);
 			int success = 0;// 成功数
 			int failure = 0;// 失败数
@@ -408,18 +408,18 @@ public class MonitorDAO extends MetaBaseDAO {
 			}
 			sql += " order by START_TIME desc";
 		} else if (task_type.equals("2")) {
-			sql = "select * from (select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = "
-					+ log_id
-					+ " union all "
-					+ " select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = "
-					+ log_id + ")t where 1=1 ";
+			sql = "select * from (select ML.Map_Task_Id TASK_ID,ML.LOG_ID,'MAP' Task_type, ML.MAP_INPUT_COUNT INPUT_COUNT ,ML.MAP_OUTPUT_COUNT OUTPUT_COUNT ,to_char(ML.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(ML.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(ML.RUN_FLAG,0) RUN_FLAG ,NVL(ML.RUN_FLAG,0) STATUS,ML.LOG_MSG from MR_JOB_MAP_RUN_LOG ML where log_id = " +
+					log_id +
+					" union all " +
+					" select RL.REDUCE_Task_Id TASK_ID,RL.LOG_ID,'REDUCE' Task_type ,RL.REDUCE_INPUT_COUNT INPUT_COUNT ,RL.REDUCE_OUTPUT_COUNT OUTPUT_COUNT, to_char(RL.START_DATE,'yyyy-mm-dd hh24:mi:ss') START_DATE, to_char(RL.END_DATE,'yyyy-mm-dd hh24:mi:ss') END_DATE,NVL(RL.RUN_FLAG,0)  RUN_FLAG ,NVL(RL.RUN_FLAG,0) STATUS,RL.LOG_MSG from Mr_Job_Reduce_Run_Log RL where log_id = " +
+					log_id + ")t where 1=1 ";
 			if (data.containsKey("STATE") && !data.get("STATE").toString().equals("")) {
 				sql += " and t.STATUS = " + data.get("STATE").toString();
 			}
 			sql += " order by START_DATE desc";
 		}
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> detail_log_list = getDataAccess().queryForList(sql);
 		return detail_log_list;
@@ -441,29 +441,29 @@ public class MonitorDAO extends MetaBaseDAO {
 		int min = (c.get(Calendar.MINUTE) / interval + 1) * interval;
 		c.set(Calendar.MINUTE, min);
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		if (MonitorData.getMonitorConfig().get("ISAUTOREFRESH").toString().equals("0")
-				&& MonitorData.getMonitorConfig().get("ISMANUREFRESH").toString().equals("0")) {
+		if (MonitorData.getMonitorConfig().get("ISAUTOREFRESH").toString().equals("0") &&
+				MonitorData.getMonitorConfig().get("ISMANUREFRESH").toString().equals("0")) {
 
 		} else {
-			String sql = " select "
-					+ " to_char((trunc(sysdate)+trunc((date_time-trunc(sysdate))*24*60/"
-					+ interval
-					+ "+ (case when to_char(date_time,'yyyymmdd')<to_char(sysdate,'yyyymmdd') then -1 else 0 end ))*"
-					+ interval
-					+ "/60/24),'hh24:mi') date_time,"
-					+ " sum(decode(T.STATUS,1,1,0)) SUCCESS,"
-					+ " sum(decode(T.STATUS,2,1,0)) FAILURE,"
-					+ " sum(decode(T.STATUS,5,1,0)) STARTNUM"
-					+ " from ("
-					+ " select status STATUS,cj.col_id  TASK_ID,cj.col_origin task_type,cj.col_type job_type,to_date(end_time,'yyyy-mm-dd:hh24:mi:ss') date_time from MR_FTP_COL_FILE_LOG FL inner join MR_FTP_COL_JOB cj on fl.col_id = cj.col_id where fl.start_time>to_char(sysdate-1,'yyyy-mm-dd hh24:mi:ss') "
-					+ " union all"
-					+ " select 5 STATUS,cj.col_id  TASK_ID,cj.col_origin task_type,cj.col_type job_type,to_date(start_time,'yyyy-mm-dd:hh24:mi:ss') date_time from MR_FTP_COL_FILE_LOG FL inner join MR_FTP_COL_JOB cj on fl.col_id = cj.col_id where fl.start_time>to_char(sysdate-1,'yyyy-mm-dd hh24:mi:ss')"
-					+ " union all"
-					+ " select RUN_FLAG STATUS,jr.job_id TASK_ID,2 task_type,mj.job_type,END_DATE date_time FROM MR_JOB_RUN_LOG JR inner join mr_job mj on jr.job_id=mj.job_id where JR.START_DATE>sysdate-1"
-					+ " union all"
-					+ " select 5 STATUS,jr.job_id TASK_ID,2 task_type,mj.job_type,START_DATE date_time FROM MR_JOB_RUN_LOG JR inner join mr_job mj on jr.job_id=mj.job_id where JR.START_DATE>sysdate-1"
-					+ " )  T INNER JOIN META_MR_USER_AUTHOR UA ON T.TASK_ID = UA.TASK_ID AND decode(T.TASK_TYPE,0,1,T.TASK_TYPE) = UA.TASK_TYPE AND UA.USER_ID =UA.CREATE_USER_ID "
-					+ " where date_time is not null";
+			String sql = " select " +
+					" to_char((trunc(sysdate)+trunc((date_time-trunc(sysdate))*24*60/" +
+					interval +
+					"+ (case when to_char(date_time,'yyyymmdd')<to_char(sysdate,'yyyymmdd') then -1 else 0 end ))*" +
+					interval +
+					"/60/24),'hh24:mi') date_time," +
+					" sum(decode(T.STATUS,1,1,0)) SUCCESS," +
+					" sum(decode(T.STATUS,2,1,0)) FAILURE," +
+					" sum(decode(T.STATUS,5,1,0)) STARTNUM" +
+					" from (" +
+					" select status STATUS,cj.col_id  TASK_ID,cj.col_origin task_type,cj.col_type job_type,to_date(end_time,'yyyy-mm-dd:hh24:mi:ss') date_time from MR_FTP_COL_FILE_LOG FL inner join MR_FTP_COL_JOB cj on fl.col_id = cj.col_id where fl.start_time>to_char(sysdate-1,'yyyy-mm-dd hh24:mi:ss') " +
+					" union all" +
+					" select 5 STATUS,cj.col_id  TASK_ID,cj.col_origin task_type,cj.col_type job_type,to_date(start_time,'yyyy-mm-dd:hh24:mi:ss') date_time from MR_FTP_COL_FILE_LOG FL inner join MR_FTP_COL_JOB cj on fl.col_id = cj.col_id where fl.start_time>to_char(sysdate-1,'yyyy-mm-dd hh24:mi:ss')" +
+					" union all" +
+					" select RUN_FLAG STATUS,jr.job_id TASK_ID,2 task_type,mj.job_type,END_DATE date_time FROM MR_JOB_RUN_LOG JR inner join mr_job mj on jr.job_id=mj.job_id where JR.START_DATE>sysdate-1" +
+					" union all" +
+					" select 5 STATUS,jr.job_id TASK_ID,2 task_type,mj.job_type,START_DATE date_time FROM MR_JOB_RUN_LOG JR inner join mr_job mj on jr.job_id=mj.job_id where JR.START_DATE>sysdate-1" +
+					" )  T INNER JOIN META_MR_USER_AUTHOR UA ON T.TASK_ID = UA.TASK_ID AND decode(T.TASK_TYPE,0,1,T.TASK_TYPE) = UA.TASK_TYPE AND UA.USER_ID =UA.CREATE_USER_ID " +
+					" where date_time is not null";
 			if (!adminFlag.equals("1")) {
 				sql += " and UA.USER_ID = " + userId;
 			}
@@ -474,9 +474,9 @@ public class MonitorDAO extends MetaBaseDAO {
 				sql += " and T.job_type= " + data.get("job_type").toString();
 			}
 
-			sql += " GROUP BY " + " to_char((trunc(sysdate)+trunc((date_time-trunc(sysdate))*24*60/" + interval
-					+ "+ (case when to_char(date_time,'yyyymmdd')<to_char(sysdate,'yyyymmdd') then -1 else 0 end ))*"
-					+ interval + "/60/24),'hh24:mi')" + " order by 1";
+			sql += " GROUP BY " + " to_char((trunc(sysdate)+trunc((date_time-trunc(sysdate))*24*60/" + interval +
+					"+ (case when to_char(date_time,'yyyymmdd')<to_char(sysdate,'yyyymmdd') then -1 else 0 end ))*" +
+					interval + "/60/24),'hh24:mi')" + " order by 1";
 			list = getDataAccess().queryForList(sql);
 		}
 		List<Map<String, Object>> rlist = new ArrayList<Map<String, Object>>();
@@ -512,12 +512,12 @@ public class MonitorDAO extends MetaBaseDAO {
 		int ISMANUREFRESH = Integer.valueOf(data.get("ISMANUREFRESH").toString());
 		String HADOOPJOBURL = data.get("HADOOPJOBURL").toString();
 		String HADOOPVERSION = data.get("HADOOPVERSION").toString();
-		String sql = "update meta_mag_timer set timer_rule = '-1," + REPEATINTERVAL + "' where timer_id = "
-				+ MonitorTimer.TimerName;
+		String sql = "update meta_mag_timer set timer_rule = '-1," + REPEATINTERVAL + "' where timer_id = " +
+				MonitorTimer.TimerName;
 		getDataAccess().execUpdate(sql);
-		sql = "update META_MAG_MONITOR set REPEATINTERVAL = " + REPEATINTERVAL + ", WEBINTERVAL = " + WEBINTERVAL
-				+ ", ISAUTOREFRESH = " + ISAUTOREFRESH + ", HADOOPJOBURL = '" + HADOOPJOBURL + "', HADOOPVERSION = '"
-				+ HADOOPVERSION + "', ISMANUREFRESH = " + ISMANUREFRESH;
+		sql = "update META_MAG_MONITOR set REPEATINTERVAL = " + REPEATINTERVAL + ", WEBINTERVAL = " + WEBINTERVAL +
+				", ISAUTOREFRESH = " + ISAUTOREFRESH + ", HADOOPJOBURL = '" + HADOOPJOBURL + "', HADOOPVERSION = '" +
+				HADOOPVERSION + "', ISMANUREFRESH = " + ISMANUREFRESH;
 		getDataAccess().execUpdate(sql);
 	}
 

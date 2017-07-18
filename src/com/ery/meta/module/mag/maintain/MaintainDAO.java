@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.utils.MapUtils;
-
 /**
  * 
-
+ * 
  * @date 2012-05-21
  * @description 维护表操作DAO
  * 
@@ -140,7 +139,8 @@ public class MaintainDAO extends MetaBaseDAO {
 	 * 通过搜索条件，查询对应表信息下的数据
 	 * 
 	 * @param data
-	 * @param page 分页
+	 * @param page
+	 *            分页
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -198,7 +198,7 @@ public class MaintainDAO extends MetaBaseDAO {
 		}
 		sql += " ORDER BY T." + primaryId + " DESC";
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> rs = getDataAccess(datasourceId).queryForList(sql, param.toArray());
 		return rs;

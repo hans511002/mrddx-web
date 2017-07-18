@@ -8,22 +8,21 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.ery.base.support.jdbc.BinaryStream;
+import com.ery.base.support.jdbc.IParamsSetter;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
+import com.ery.hadoop.hq.utils.StringUtil;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 import com.ery.meta.module.mag.login.LoginConstant;
 import com.ery.meta.web.session.SessionManager;
 
-import com.ery.hadoop.hq.utils.StringUtil;
-import com.ery.base.support.jdbc.BinaryStream;
-import com.ery.base.support.jdbc.IParamsSetter;
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
-
  * 
-
+ * 
+ * 
  * @description
  * @date 2013-04-22 -
  * @modify
@@ -62,10 +61,10 @@ public class JobDAO extends MetaBaseDAO {
 		long dataSourceId = Convert.toLong(data.get("DATA_SOURCE_ID"), -999);
 		int sourceTypeId = Convert.toInt(data.get("SOURCE_TYPE_ID"), 0);
 		long jobId = Convert.toLong(data.get("jobId"), 0);
-		String sql = "SELECT A.DATA_SOURCE_ID,A.DATA_SOURCE_NAME,A.SOURCE_TYPE_ID,B.IS_MUST,B.INPUT_OR_OUTPUT,"
-				+ "B.PARAM_NAME," + (jobId != 0 ? "NVL(C.PARAM_VALUE,B.DEFAULT_VALUE)" : "B.DEFAULT_VALUE")
-				+ " DEFAULT_VALUE,B.PARAM_DESC "
-				+ "FROM MR_SOURCE_PARAM B INNER JOIN MR_DATA_SOURCE A ON A.SOURCE_TYPE_ID = B.SOURCE_TYPE_ID ";
+		String sql = "SELECT A.DATA_SOURCE_ID,A.DATA_SOURCE_NAME,A.SOURCE_TYPE_ID,B.IS_MUST,B.INPUT_OR_OUTPUT," +
+				"B.PARAM_NAME," + (jobId != 0 ? "NVL(C.PARAM_VALUE,B.DEFAULT_VALUE)" : "B.DEFAULT_VALUE") +
+				" DEFAULT_VALUE,B.PARAM_DESC " +
+				"FROM MR_SOURCE_PARAM B INNER JOIN MR_DATA_SOURCE A ON A.SOURCE_TYPE_ID = B.SOURCE_TYPE_ID ";
 		if (jobId != 0) {
 			sql += " LEFT JOIN MR_JOB_PARAM C ON B.PARAM_NAME = C.PARAM_NAME AND C.JOB_ID=" + jobId;
 		}
@@ -90,8 +89,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> querySystemParam(Map<String, Object> data) {
 		long jobId = Convert.toLong(data.get("jobId"), 0);
-		String sql = "SELECT T.PARAM_NAME," + (jobId != 0 ? "NVL(A.PARAM_VALUE,T.DEFAULT_VALUE)" : "T.DEFAULT_VALUE")
-				+ " DEFAULT_VALUE,T.IS_MUST, T.PARAM_DESC FROM MR_SYSTEM_PARAM T ";
+		String sql = "SELECT T.PARAM_NAME," + (jobId != 0 ? "NVL(A.PARAM_VALUE,T.DEFAULT_VALUE)" : "T.DEFAULT_VALUE") +
+				" DEFAULT_VALUE,T.IS_MUST, T.PARAM_DESC FROM MR_SYSTEM_PARAM T ";
 		if (jobId != 0) {
 			sql += " LEFT JOIN MR_JOB_PARAM A ON T.PARAM_NAME = A.PARAM_NAME AND A.JOB_ID=" + jobId;
 		}
@@ -160,7 +159,7 @@ public class JobDAO extends MetaBaseDAO {
 		}
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -187,24 +186,23 @@ public class JobDAO extends MetaBaseDAO {
 		// String sql =
 		// "SELECT A.JOB_ID,A.JOB_NAME,A.JOB_STATUS,A.INPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.INPUT_DATA_SOURCE_ID) AS INPUT_DATA_NAME,A.OUTPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_DATA_NAME,A.INPUT_DIR,A.JOB_PRIORITY,CASE A.JOB_PRIORITY WHEN '1' THEN 'VERY_LOW' WHEN '2' THEN 'LOW' WHEN '3' THEN 'NORMAL' WHEN '4' THEN 'HIGH' ELSE 'VERY_HIGH' END AS JOB_PRIORITY_NAME,A.MAP_TASKS,A.REDUCE_TASKS, A.JOB_DESCRIBE,(SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.INPUT_DATA_SOURCE_ID) AS INPUT_SOURCE_TYPE_ID, (SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_SOURCE_TYPE_ID FROM MR_JOB A WHERE 1 = 1 ";
 
-		String sql = "SELECT A.JOB_ID,A.JOB_NAME,A.JOB_STATUS,A.INPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.INPUT_DATA_SOURCE_ID) AS INPUT_DATA_NAME,A.OUTPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_DATA_NAME,A.INPUT_DIR,A.JOB_PRIORITY,CASE A.JOB_PRIORITY WHEN '1' THEN '最低级' WHEN '2' THEN '低级' WHEN '3' THEN '普通' WHEN '4' THEN '高级' ELSE '最高级' END AS JOB_PRIORITY_NAME,A.MAP_TASKS,A.REDUCE_TASKS, A.JOB_DESCRIBE,(SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.INPUT_DATA_SOURCE_ID) AS INPUT_SOURCE_TYPE_ID, (SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_SOURCE_TYPE_ID ,"
-				+ " decode(m.view_action,null,0,m.view_action) \"VIEW\",decode(m.modify_action,null,0,m.modify_action) modi,decode(m.delete_action,null,0,m.delete_action) del,"
-				+ " decode(m.create_user_id,"
-				+ userId
-				+ ",1,0) creater"
-				+ " FROM MR_JOB A "
-				+ " left join META_MR_USER_AUTHOR m on m.user_id= "
-				+ userId
-				+ " and m.task_id = a.job_id and m.task_type =2" + " WHERE 1 = 1 ";
+		String sql = "SELECT A.JOB_ID,A.JOB_NAME,A.JOB_STATUS,A.INPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.INPUT_DATA_SOURCE_ID) AS INPUT_DATA_NAME,A.OUTPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_DATA_NAME,A.INPUT_DIR,A.JOB_PRIORITY,CASE A.JOB_PRIORITY WHEN '1' THEN '最低级' WHEN '2' THEN '低级' WHEN '3' THEN '普通' WHEN '4' THEN '高级' ELSE '最高级' END AS JOB_PRIORITY_NAME,A.MAP_TASKS,A.REDUCE_TASKS, A.JOB_DESCRIBE,(SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.INPUT_DATA_SOURCE_ID) AS INPUT_SOURCE_TYPE_ID, (SELECT B.SOURCE_TYPE_ID FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID = A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_SOURCE_TYPE_ID ," +
+				" decode(m.view_action,null,0,m.view_action) \"VIEW\",decode(m.modify_action,null,0,m.modify_action) modi,decode(m.delete_action,null,0,m.delete_action) del," +
+				" decode(m.create_user_id," +
+				userId +
+				",1,0) creater" +
+				" FROM MR_JOB A " +
+				" left join META_MR_USER_AUTHOR m on m.user_id= " +
+				userId +
+				" and m.task_id = a.job_id and m.task_type =2" + " WHERE 1 = 1 ";
 
 		if (getDataAccess().queryForInt(rolesql) == 0) {
-			sql += " and JOB_ID in (select task_id from META_MR_USER_AUTHOR where task_type=2 and user_id = " + userId
-					+ ")";
+			sql += " and JOB_ID in (select task_id from META_MR_USER_AUTHOR where task_type=2 and user_id = " + userId +
+					")";
 		}
 
 		/*
-		 * sql =
-		 * "SELECT A.JOB_ID,A.JOB_NAME,A.JOB_STATUS,A.INPUT_DATA_SOURCE_ID," +
+		 * sql = "SELECT A.JOB_ID,A.JOB_NAME,A.JOB_STATUS,A.INPUT_DATA_SOURCE_ID," +
 		 * "(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.INPUT_DATA_SOURCE_ID) AS INPUT_DATA_NAME,"
 		 * +
 		 * "A.OUTPUT_DATA_SOURCE_ID,(SELECT B.DATA_SOURCE_NAME  FROM MR_DATA_SOURCE B WHERE B.DATA_SOURCE_ID=A.OUTPUT_DATA_SOURCE_ID) AS OUTPUT_DATA_NAME,"
@@ -232,7 +230,7 @@ public class JobDAO extends MetaBaseDAO {
 			sql += " ORDER BY A.JOB_ID ";
 		}
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		// for(Map<String,Object> map : list){
@@ -357,8 +355,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryJobLog(int jobId) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		String sql = "SELECT T.LOG_ID,T.JOB_ID FROM MR_JOB_RUN_LOG T WHERE  1=1" + " AND T.JOB_ID =" + "'" + jobId
-				+ "'";
+		String sql = "SELECT T.LOG_ID,T.JOB_ID FROM MR_JOB_RUN_LOG T WHERE  1=1" + " AND T.JOB_ID =" + "'" + jobId +
+				"'";
 		list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -384,8 +382,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryMapLog(String logId) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		String sql = "SELECT T.MAP_TASK_ID,T.LOG_ID FROM MR_JOB_MAP_RUN_LOG T WHERE  1=1" + " AND T.LOG_ID =" + "'"
-				+ logId + "'";
+		String sql = "SELECT T.MAP_TASK_ID,T.LOG_ID FROM MR_JOB_MAP_RUN_LOG T WHERE  1=1" + " AND T.LOG_ID =" + "'" +
+				logId + "'";
 		list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -398,8 +396,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryMapLogMsg(String mapTaskId) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		String sql = "SELECT T.MAP_TASK_ID FROM MR_JOB_MAP_RUN_LOG_MSG T WHERE  1=1" + " AND T.MAP_TASK_ID =" + "'"
-				+ mapTaskId + "'";
+		String sql = "SELECT T.MAP_TASK_ID FROM MR_JOB_MAP_RUN_LOG_MSG T WHERE  1=1" + " AND T.MAP_TASK_ID =" + "'" +
+				mapTaskId + "'";
 		list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -412,8 +410,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryReduceLog(String logId) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		String sql = "SELECT T.REDUCE_TASK_ID,T.LOG_ID FROM MR_JOB_REDUCE_RUN_LOG T WHERE  1=1" + " AND T.LOG_ID ="
-				+ "'" + logId + "'";
+		String sql = "SELECT T.REDUCE_TASK_ID,T.LOG_ID FROM MR_JOB_REDUCE_RUN_LOG T WHERE  1=1" + " AND T.LOG_ID =" +
+				"'" + logId + "'";
 		list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -426,8 +424,8 @@ public class JobDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryReduceLogMsg(String reduceTaskId) {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		String sql = "SELECT T.REDUCE_TASK_ID FROM MR_JOB_REDUCE_RUN_LOG_MSG T WHERE  1=1" + " AND T.REDUCE_TASK_ID ="
-				+ "'" + reduceTaskId + "'";
+		String sql = "SELECT T.REDUCE_TASK_ID FROM MR_JOB_REDUCE_RUN_LOG_MSG T WHERE  1=1" + " AND T.REDUCE_TASK_ID =" +
+				"'" + reduceTaskId + "'";
 		list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -706,8 +704,8 @@ public class JobDAO extends MetaBaseDAO {
 		// "SELECT A.PARAM_NAME, A.PARAM_VALUE AS DEFAULT_VALUE, A.PARAM_DESC  FROM MR_JOB_PARAM A, MR_JOB B WHERE A.JOB_ID = B.JOB_ID ";
 
 		/*
-		 * if(jobId!=null && !"".equals(jobId)){ sql += " AND A.JOB_ID = "+"'" +
-		 * jobId +"'"; sql += " AND A.PARAM_NAME LIKE '%.sys.%'";//系统参数 }
+		 * if(jobId!=null && !"".equals(jobId)){ sql += " AND A.JOB_ID = "+"'" + jobId +"'"; sql +=
+		 * " AND A.PARAM_NAME LIKE '%.sys.%'";//系统参数 }
 		 */
 
 		List<Object> param = new ArrayList<Object>();

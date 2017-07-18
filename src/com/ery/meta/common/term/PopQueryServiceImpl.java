@@ -3,19 +3,19 @@ package com.ery.meta.common.term;
 import java.util.List;
 import java.util.Map;
 
-import com.ery.meta.common.Page;
-import com.ery.meta.common.SqlUtils;
-
 import com.ery.base.support.jdbc.DataAccess;
 import com.ery.base.support.utils.Convert;
-
+import com.ery.meta.common.Page;
+import com.ery.meta.common.SqlUtils;
 
 public class PopQueryServiceImpl extends TermDataService {
 	/**
 	 * 查询数据表格
 	 * 
-	 * @param access 数据库连接
-	 * @param map 条件对象
+	 * @param access
+	 *            数据库连接
+	 * @param map
+	 *            条件对象
 	 * @return
 	 * @throws Exception
 	 */
@@ -51,7 +51,7 @@ public class PopQueryServiceImpl extends TermDataService {
 		}
 		sql += " ORDER BY VAL";
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(access, sql, page);
 		}
 		return access.queryForList(sql);
 	}

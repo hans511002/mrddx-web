@@ -53,7 +53,7 @@ public class UserAuthorDAO extends MetaBaseDAO {
 		}
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -129,7 +129,7 @@ public class UserAuthorDAO extends MetaBaseDAO {
 		List<Object> param = new ArrayList<Object>();
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
@@ -213,7 +213,7 @@ public class UserAuthorDAO extends MetaBaseDAO {
 		List<Object> param = new ArrayList<Object>();
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());

@@ -7,21 +7,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.jdbc.BinaryStream;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
+import com.ery.base.support.web.init.SystemVariableInit;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.jdbc.BinaryStream;
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-import com.ery.base.support.web.init.SystemVariableInit;
-
 /**
  * 
-
  * 
-
+ * 
+ * 
  * @description 源数据管理的 Dao
  * @date 2013-4-22
  */
@@ -72,7 +71,7 @@ public class DataSourceDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -153,7 +152,8 @@ public class DataSourceDao extends MetaBaseDAO {
 	/**
 	 * 测试是否有这条数据源
 	 * 
-	 * @param id 数据源ID
+	 * @param id
+	 *            数据源ID
 	 * @return
 	 */
 	public boolean canDeleteData(String id) {
@@ -164,7 +164,8 @@ public class DataSourceDao extends MetaBaseDAO {
 	/**
 	 * 删除数据源
 	 * 
-	 * @param id 数据源ID
+	 * @param id
+	 *            数据源ID
 	 */
 	public void deleteData(String id) {
 		String sql = "DELETE FROM HB_DATA_SOURCE WHERE DATA_SOURCE_ID=?";
@@ -219,7 +220,7 @@ public class DataSourceDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}

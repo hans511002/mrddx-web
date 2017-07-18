@@ -1,6 +1,7 @@
 package com.ery.meta.common;
 
 import java.sql.Connection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,9 @@ import com.ery.base.support.common.aop.InvokeAdapter;
 import com.ery.base.support.jdbc.DataAccess;
 import com.ery.base.support.jdbc.DataAccessFactory;
 import com.ery.base.support.sys.podo.BaseDAO;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.StringUtils;
+import com.ery.meta.util.SystemSeqService;
 
 public class MetaBaseDAO extends BaseDAO {
 
@@ -86,8 +90,13 @@ public class MetaBaseDAO extends BaseDAO {
 	 * @return
 	 */
 	public long queryForNextVal(String scequenceName) {
-		String sql = "SELECT " + scequenceName + ".NEXTVAL FROM DUAL";
-		return getDataAccess().queryForLong(sql);
+		if (isMysql()) {
+			return SystemSeqService.getSeqNextValue(scequenceName);
+		} else {
+			String sql = "SELECT " + scequenceName + ".NEXTVAL FROM DUAL";
+			return getDataAccess().queryForLong(sql);
+		}
+
 	}
 
 	/**
@@ -129,5 +138,47 @@ public class MetaBaseDAO extends BaseDAO {
 	public List<Map<String, Object>> queryForListByCodeBean(String sql, CodeBean[] CodeBeans, Object... params) {
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, new CodeMapper(CodeBeans), params);
 		return list;
+	}
+
+	public String getSubIds(DataAccess access, String sql, String id) {
+		List<String> res = new LinkedList<String>();
+		getSubIds(res, access, sql, id);
+		return StringUtils.join(res, ",");
+	}
+
+	public List<String> getSubIds(List<String> res, DataAccess access, String sql, String id) {
+		Object[][] list = access.queryForArray(sql, false, id);
+		if (list == null || list.length == 0) {
+			return res;
+		}
+		for (Object[] objects : list) {
+			String oid = Convert.toString(objects[0], "");
+			if (!oid.isEmpty()) {
+				res.add(oid);
+				getSubIds(res, access, sql, oid);
+			}
+		}
+		return res;
+	}
+
+	public String getParIds(DataAccess access, String sql, String id) {
+		List<String> res = new LinkedList<String>();
+		getParIds(res, access, sql, id);
+		return StringUtils.join(res, ",");
+	}
+
+	public List<String> getParIds(List<String> res, DataAccess access, String sql, String id) {
+		Object[][] list = access.queryForArray(sql, false, id);
+		if (list == null || list.length == 0) {
+			return res;
+		}
+		for (Object[] objects : list) {
+			String oid = Convert.toString(objects[0], "");
+			if (!oid.isEmpty()) {
+				res.add(oid);
+				getSubIds(res, access, sql, oid);
+			}
+		}
+		return res;
 	}
 }

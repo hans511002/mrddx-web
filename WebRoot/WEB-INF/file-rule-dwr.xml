@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://www.getahead.ltd.uk/dwr/dwr20.dtd">
+<dwr>
+	<init>
+        <creator id="db" class="com.ery.base.support.dwr.DBCreator"/>
+        <converter id="nestedMap" class="com.ery.base.support.dwr.NestedMapConverter"/>
+        <converter id="nestedCollection" class="com.ery.base.support.dwr.NestedCollectionConverter"/>
+        <converter id="bigDecimal" class="com.ery.base.support.dwr.BigDecimalConverter"/>
+    </init>
+    <allow>
+        <!--文件格式配置-->
+        <create creator="db" javascript="FileRuleAction">
+            <param name="class" value="com.ery.meta.module.rule.FileRuleAction"/>
+        </create>
+        <!--实时入库文件与hbase字段映射配置-->
+        <create creator="db" javascript="MappingConfAction">
+            <param name="class" value="com.ery.meta.module.rule.MappingConfAction"/>
+        </create>
+        <!--实时入库(动态)文件与hbase字段映射配置-->
+        <create creator="db" javascript="FileRuleCtlAction">
+            <param name="class" value="com.ery.meta.module.rule.FileRuleCtlAction"/>
+        </create>
+        <!--入库文件与hbase表之间的映射关系配置-->
+        <create creator="db" javascript="FileImpAction">
+            <param name="class" value="com.ery.meta.module.rule.FileImpAction"/>
+        </create>
+        <!--回退和调账的rowkey组合规则-->
+        <create creator="db" javascript="RollbackAction">
+            <param name="class" value="com.ery.meta.module.rule.RollbackAction"/>
+        </create>    
+    </allow>
+</dwr>

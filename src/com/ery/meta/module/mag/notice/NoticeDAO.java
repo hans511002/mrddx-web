@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.Common;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
@@ -11,16 +12,14 @@ import com.ery.meta.common.SqlUtils;
 import com.ery.meta.sys.code.CodeManager;
 import com.ery.meta.web.session.SessionManager;
 
-import com.ery.base.support.utils.MapUtils;
-
-
-
 public class NoticeDAO extends MetaBaseDAO {
 	/**
 	 * 按条件查询出相应的公告
 	 * 
-	 * @param queryData 查询条件
-	 * @param page 分页条件
+	 * @param queryData
+	 *            查询条件
+	 * @param page
+	 *            分页条件
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> queryNotice(Map<String, Object> queryData, Page page) {
@@ -31,18 +30,18 @@ public class NoticeDAO extends MetaBaseDAO {
 						+ "TO_CHAR(T.INIT_DATE,'YYYY-MM-DD HH24:MI:SS') INIT_DATE,TO_CHAR(T.FAILURE_DATE,'YYYY-MM-DD') FAILURE_DATE, "
 						+ "TO_CHAR(T.EFFECT_DATE,'YYYY-MM-DD') EFFECT_DATE FROM META_MAG_NOTICE T LEFT JOIN META_MAG_USER A ON T.NOTICE_USER=A.USER_ID WHERE 1=1 ");
 		List params = new ArrayList();
-		if (queryData.containsKey("noticeTitle") && queryData.get("noticeTitle") != null
-				&& !"".endsWith(queryData.get("noticeTitle").toString())) {
+		if (queryData.containsKey("noticeTitle") && queryData.get("noticeTitle") != null &&
+				!"".endsWith(queryData.get("noticeTitle").toString())) {
 			sql.append("AND T.NOTICE_TITLE LIKE " + SqlUtils.allLikeParam(queryData.get("noticeTitle").toString()));
 			// params.add("%"+queryData.get("noticeTitle")+"%");
 		}
-		if (queryData.containsKey("noticeLevel") && queryData.get("noticeLevel") != null
-				&& !"".endsWith(queryData.get("noticeLevel").toString())) {
+		if (queryData.containsKey("noticeLevel") && queryData.get("noticeLevel") != null &&
+				!"".endsWith(queryData.get("noticeLevel").toString())) {
 			sql.append("AND T.NOTICE_LEVEL = ? ");
 			params.add(queryData.get("noticeLevel"));
 		}
-		if (queryData.containsKey("noticeState") && queryData.get("noticeState") != null
-				&& !"".equals(queryData.get("noticeState").toString())) {
+		if (queryData.containsKey("noticeState") && queryData.get("noticeState") != null &&
+				!"".equals(queryData.get("noticeState").toString())) {
 			sql.append("AND T.NOTICE_STATE = ? ");
 			params.add(queryData.get("noticeState"));
 		}
@@ -50,7 +49,7 @@ public class NoticeDAO extends MetaBaseDAO {
 		String pageSql = sql.toString();
 		// 分页包装
 		if (page != null) {
-			pageSql = SqlUtils.wrapPagingSql(pageSql, page);
+			pageSql = SqlUtils.wrapPagingSql(getDataAccess(), pageSql, page);
 		}
 		List<Map<String, Object>> rs = getDataAccess().queryForList(pageSql, params.toArray());
 		if (rs != null && rs.size() > 0) {
@@ -96,12 +95,12 @@ public class NoticeDAO extends MetaBaseDAO {
 	 * @return
 	 */
 	public List<Map<String, Object>> queryNoticeById(Integer noticeId[]) {
-		String sql = "SELECT T.NOTICE_ID,T.NOTICE_TITLE, "
-				+ "T.NOTICE_TYPE,T.NOTICE_CONTENT,T.NOTICE_LEVEL,T.NOTICE_STATE, "
-				+ "TO_CHAR(T.UPDATE_DATE,'YYYY-MM-DD HH24:MI:SS') UPDATE_DATE,T.NOTICE_USER,A.USER_NAMECN, "
-				+ "TO_CHAR(T.INIT_DATE,'YYYY-MM-DD HH24:MI:SS') INIT_DATE,TO_CHAR(T.FAILURE_DATE,'YYYY-MM-DD') FAILURE_DATE, "
-				+ "TO_CHAR(T.EFFECT_DATE,'YYYY-MM-DD') EFFECT_DATE FROM META_MAG_NOTICE T LEFT JOIN META_MAG_USER A ON T.NOTICE_USER=A.USER_ID WHERE NOTICE_ID IN ( "
-				+ Common.join(noticeId, ",") + ")";
+		String sql = "SELECT T.NOTICE_ID,T.NOTICE_TITLE, " +
+				"T.NOTICE_TYPE,T.NOTICE_CONTENT,T.NOTICE_LEVEL,T.NOTICE_STATE, " +
+				"TO_CHAR(T.UPDATE_DATE,'YYYY-MM-DD HH24:MI:SS') UPDATE_DATE,T.NOTICE_USER,A.USER_NAMECN, " +
+				"TO_CHAR(T.INIT_DATE,'YYYY-MM-DD HH24:MI:SS') INIT_DATE,TO_CHAR(T.FAILURE_DATE,'YYYY-MM-DD') FAILURE_DATE, " +
+				"TO_CHAR(T.EFFECT_DATE,'YYYY-MM-DD') EFFECT_DATE FROM META_MAG_NOTICE T LEFT JOIN META_MAG_USER A ON T.NOTICE_USER=A.USER_ID WHERE NOTICE_ID IN ( " +
+				Common.join(noticeId, ",") + ")";
 		List<Map<String, Object>> rs = getDataAccess().queryForList(sql);
 		if (rs != null && rs.size() > 0) {
 			for (Map<String, Object> map : rs) {
@@ -122,7 +121,8 @@ public class NoticeDAO extends MetaBaseDAO {
 	/**
 	 * 删除一天公告
 	 * 
-	 * @param noticeIds 被删除的系统公告ID
+	 * @param noticeIds
+	 *            被删除的系统公告ID
 	 * @return
 	 * @throws Exception
 	 */
@@ -145,7 +145,8 @@ public class NoticeDAO extends MetaBaseDAO {
 	/**
 	 * 修改公告
 	 * 
-	 * @param data 修改后的信息
+	 * @param data
+	 *            修改后的信息
 	 * @return
 	 * @throws Exception
 	 */
@@ -165,13 +166,15 @@ public class NoticeDAO extends MetaBaseDAO {
 	/**
 	 * 改变公告状态
 	 * 
-	 * @param noticeId 公告ID
-	 * @param noticeState 公告状态
+	 * @param noticeId
+	 *            公告ID
+	 * @param noticeState
+	 *            公告状态
 	 * @return 修改记录
 	 */
 	public int noticeStateCtrlr(Integer noticeId[], Integer noticeState) {
-		String sql = "UPDATE META_MAG_NOTICE SET NOTICE_STATE = ? WHERE NOTICE_ID IN (" + Common.join(noticeId, ",")
-				+ " )";
+		String sql = "UPDATE META_MAG_NOTICE SET NOTICE_STATE = ? WHERE NOTICE_ID IN (" + Common.join(noticeId, ",") +
+				" )";
 		return getDataAccess().execUpdate(sql, noticeState);
 	}
 }

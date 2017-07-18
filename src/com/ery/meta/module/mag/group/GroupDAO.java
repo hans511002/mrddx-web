@@ -3,17 +3,16 @@ package com.ery.meta.module.mag.group;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
 import com.ery.meta.common.Constant;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.utils.Convert;
-
 /**
-
  * 
-
+ * 
+ * 
  * @description 业务系统增删改查数据库访问类 <br>
  * @date 2011-10-18
  */
@@ -22,12 +21,13 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 根据系统ID取得系统信息
 	 * 
-	 * @param groupId 系统ID
+	 * @param groupId
+	 *            系统ID
 	 * @return 系统信息
 	 */
 	public Map<String, Object> queryGroupById(int groupId) {
-		String sql = "SELECT GROUP_ID, GROUP_NAME, GROUP_SN, GROUP_STATE, GROUP_LOGO, "
-				+ "DEFAULT_SKIN, FRAME_URL FROM META_MENU_GROUP WHERE GROUP_ID=" + groupId;
+		String sql = "SELECT GROUP_ID, GROUP_NAME, GROUP_SN, GROUP_STATE, GROUP_LOGO, " +
+				"DEFAULT_SKIN, FRAME_URL FROM META_MENU_GROUP WHERE GROUP_ID=" + groupId;
 		return getDataAccess().queryForMap(sql);
 	}
 
@@ -45,23 +45,25 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 根据前台条件取得符合条件的系统列表
 	 * 
-	 * @param queryData 查询条件
-	 * @param page 分页对象
+	 * @param queryData
+	 *            查询条件
+	 * @param page
+	 *            分页对象
 	 * @return 符合条件的系统列表
 	 */
 	public List<Map<String, Object>> queryGroup(Map<?, ?> queryData, Page page) {
 		String sql = "SELECT T.SYS_ID AS GROUP_ID,T.SYS_NAME AS GROUP_NAME " + "FROM META_SYS T WHERE 1 = 1";
 		String proParams = "";
 		if (queryData != null && queryData.containsKey("groupName")) {
-			sql = sql + " AND T.SYS_NAME LIKE  "
-					+ SqlUtils.allLikeParam(Convert.toString(queryData.get("groupName")).trim());
+			sql = sql + " AND T.SYS_NAME LIKE  " +
+					SqlUtils.allLikeParam(Convert.toString(queryData.get("groupName")).trim());
 			// proParams = ("%" +
 			// Convert.toString(queryData.get("groupName")).trim() + "%");
 		}
 		sql = sql + " ORDER BY T.SYS_ID";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		if (!proParams.equals("")) {
 			return getDataAccess().queryForList(sql, proParams);
@@ -73,8 +75,10 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 查询业务系统
 	 * 
-	 * @param queryData 查询条件
-	 * @param page 分页对象
+	 * @param queryData
+	 *            查询条件
+	 * @param page
+	 *            分页对象
 	 * @return 符合条件的系统列表
 	 */
 
@@ -83,15 +87,15 @@ public class GroupDAO extends MetaBaseDAO {
 				+ "FROM META_MENU_GROUP T WHERE 1 = 1";
 		String proParams = "";
 		if (queryData != null && queryData.containsKey("groupName")) {
-			sql = sql + " AND T.GROUP_NAME LIKE  "
-					+ SqlUtils.allLikeParam(Convert.toString(queryData.get("groupName")).trim());
+			sql = sql + " AND T.GROUP_NAME LIKE  " +
+					SqlUtils.allLikeParam(Convert.toString(queryData.get("groupName")).trim());
 			// proParams = ("%" +
 			// Convert.toString(queryData.get("groupName")).trim() + "%");
 		}
 		sql = sql + " ORDER BY T.GROUP_ID";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		if (!proParams.equals("")) {
 			return getDataAccess().queryForList(sql, proParams);
@@ -135,7 +139,8 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 新增系统
 	 * 
-	 * @param data 被新增的数据
+	 * @param data
+	 *            被新增的数据
 	 * @return 新增后的数据的主键ID值
 	 * @throws Exception
 	 */
@@ -162,7 +167,8 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 修改系统信息
 	 * 
-	 * @param data 修改后的信息
+	 * @param data
+	 *            修改后的信息
 	 * @return
 	 * @throws Exception
 	 */
@@ -184,7 +190,8 @@ public class GroupDAO extends MetaBaseDAO {
 	/**
 	 * 删除系统信息
 	 * 
-	 * @param groupIds 被删除的系统信息ID
+	 * @param groupIds
+	 *            被删除的系统信息ID
 	 * @return
 	 * @throws Exception
 	 */

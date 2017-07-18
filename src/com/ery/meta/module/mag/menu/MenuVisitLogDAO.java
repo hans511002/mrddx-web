@@ -6,12 +6,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
-
-import com.ery.base.support.utils.Convert;
-
+import com.ery.meta.util.SystemSeqService;
 
 public class MenuVisitLogDAO extends MetaBaseDAO {
 	/**
@@ -21,8 +20,15 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 	 * @throws Exception
 	 */
 	public void insert(Map<String, Object> logData) throws Exception {
-		String sql = "INSERT INTO META_MAG_MENU_VISIT_LOG(MENU_ID,USER_ID,VISIT_TIME,YEAR_NO,LOG_ID,VISIT_ID) "
-				+ "VALUES(?,?,SYSDATE,TO_CHAR(SYSDATE,'YYYY'),?,SEQ_MAG_MENU_VISIT_LOG_ID.NEXTVAL) ";
+		String sql = null;
+		if ("mysql".equals(getDataAccess().getDatabaseName())) {
+			sql = "INSERT INTO META_MAG_MENU_VISIT_LOG(MENU_ID,USER_ID,VISIT_TIME,YEAR_NO,LOG_ID,VISIT_ID) " +
+					"VALUES(?,?,NOW(),DATE_FORMAT(NOW(),'%Y'),?," +
+					SystemSeqService.getSeqNextValue("META_MAG_MENU_VISIT_LOG.VISIT_ID", "SEQ_VISIT_ID") + ") ";
+		} else {
+			sql = "INSERT INTO META_MAG_MENU_VISIT_LOG(MENU_ID,USER_ID,VISIT_TIME,YEAR_NO,LOG_ID,VISIT_ID) "
+					+ "VALUES(?,?,SYSDATE,TO_CHAR(SYSDATE,'YYYY'),?,SEQ_MAG_MENU_VISIT_LOG_ID.NEXTVAL) ";
+		}
 		Object[] params = { logData.get("menuId"), logData.get("userId"), logData.get("logId") };
 		getDataAccess().execUpdate(sql, params);
 	}
@@ -44,9 +50,9 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 				+ "AND G.GROUP_NAME IS NOT NULL ");
 
 		String zoneSql = "";
-		zoneSql = "AND U.ZONE_ID IN (SELECT B.ZONE_ID FROM META_DIM_ZONE B   START WITH B.ZONE_PAR_ID in (" + zoneId
-				+ ") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID union SELECT  F.ZONE_ID"
-				+ "  FROM META_DIM_ZONE F WHERE F.ZONE_ID in (" + zoneId + "))";
+		zoneSql = "AND U.ZONE_ID IN (SELECT B.ZONE_ID FROM META_DIM_ZONE B   START WITH B.ZONE_PAR_ID in (" + zoneId +
+				") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID union SELECT  F.ZONE_ID" +
+				"  FROM META_DIM_ZONE F WHERE F.ZONE_ID in (" + zoneId + "))";
 		sql.append(zoneSql);
 
 		if (hideStations != null && !hideStations.equals("")) {
@@ -77,8 +83,8 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 
 		sql.append("GROUP BY T.MENU_ID,MENU.MENU_NAME,G.GROUP_NAME ORDER BY COUNT DESC, T.MENU_ID,G.GROUP_NAME ");
 
-		List<Map<String, Object>> result = getDataAccess().queryForList(SqlUtils.wrapPagingSql(sql.toString(), page),
-				params.toArray());
+		List<Map<String, Object>> result = getDataAccess().queryForList(
+				SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page), params.toArray());
 
 		// 将菜单名称改为全路径，不包括所属用户组
 		for (Map<String, Object> map : result) {
@@ -94,7 +100,7 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 	/**
 	 * 按menuId查寻startTime与endTime之间的详细访问记录
 	 * 
-
+	 * 
 	 * @param menuId
 	 * @param startTime
 	 * @param endTime
@@ -110,9 +116,9 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 						+ "LEFT JOIN META_MAG_MENU M ON L.MENU_ID=M.MENU_ID "
 						+ "LEFT JOIN META_MAG_USER U ON L.USER_ID=U.USER_ID " + "WHERE 1=1 ");
 		String zoneSql = "";
-		zoneSql = "AND U.ZONE_ID IN (SELECT B.ZONE_ID FROM META_DIM_ZONE B   START WITH B.ZONE_PAR_ID in (" + zoneId
-				+ ") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID union SELECT  F.ZONE_ID"
-				+ "  FROM META_DIM_ZONE F WHERE F.ZONE_ID in (" + zoneId + "))";
+		zoneSql = "AND U.ZONE_ID IN (SELECT B.ZONE_ID FROM META_DIM_ZONE B   START WITH B.ZONE_PAR_ID in (" + zoneId +
+				") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID union SELECT  F.ZONE_ID" +
+				"  FROM META_DIM_ZONE F WHERE F.ZONE_ID in (" + zoneId + "))";
 		sql.append(zoneSql);
 		List<Object> params = new ArrayList<Object>();
 		if (hideStations != null && !hideStations.equals("")) {
@@ -148,8 +154,8 @@ public class MenuVisitLogDAO extends MetaBaseDAO {
 		sql.append("ORDER BY L.VISIT_TIME DESC ");
 
 		// 查询结果
-		List<Map<String, Object>> result = getDataAccess().queryForList(SqlUtils.wrapPagingSql(sql.toString(), page),
-				params.toArray());
+		List<Map<String, Object>> result = getDataAccess().queryForList(
+				SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page), params.toArray());
 
 		// 将菜单名称改为全路径，包括所属用户组
 		for (Map<String, Object> map : result) {

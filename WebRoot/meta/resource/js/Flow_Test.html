@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0014)about:internet -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">	
+    <!-- 
+    Smart developers always View Source. 
+    
+    This application was built using Adobe Flex, an open source framework
+    for building rich Internet applications that get delivered via the
+    Flash Player or to desktops via Adobe AIR. 
+    
+    Learn more about Flex at http://flex.org 
+    // -->
+    <head>
+        <title></title>
+        <meta name="google" value="notranslate">         
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<script type="text/javascript" src="flow.js"></script>
+    </head>
+    <body style="width:100%;height:100%;">
+		<div id="mask_div" style="text-align:center;position:absolute;width:100%;height:100%;z-index:1000000; border:1px solid red;background:#eee;">
+			加载中...
+		</div>
+		<div id="flow_div" style="width:90%;height:500px">
+			
+		</div>
+		<div style="widht:100%;padding:5px;margin:5px">
+			数据和操作：
+			<input type="button" value="加载数据" onClick="loadNodes()"></input>
+			<input type="button" value="获取数据" onClick="getAllNodes()"></input>
+			<input type="button" value="清空数据" onClick="removeAllNode()"></input>
+			<input type="button" value="添加节点" onClick="addNode()"></input>
+			<input type="button" value="获取节点" onClick="getNode()"></input>
+			<input type="button" value="添加连接" onClick="addLink()"></input>
+			<input type="button" value="获取连接" onClick="getLink()"></input>
+			<input type="button" value="选择节点" onClick="selectNode()"></input>
+
+		</div>
+		<div style="widht:100%;padding:5px;margin:5px">
+			颜色和特效：
+			<input type="button" value="设置节点默认背景色" onClick="setNodeDefaultColor()"></input>
+			<input type="button" value="设置目标节点背景色" onClick="setNodeColor()"></input>
+			<input type="button" value="设置节点闪动颜色" onClick="setNodeGlowColor()"></input>
+			<input type="button" value="开始节点闪动" onClick="nodeGlowPlay()"></input>
+			<input type="button" value="停止节点闪动" onClick="nodeGlowStop()"></input>
+			<input type="button" value="设置连接闪动颜色" onClick="setLinkGlowColor()"></input>
+			<input type="button" value="开始连接闪动" onClick="linkGlowPlay()"></input>
+			<input type="button" value="停止连接闪动" onClick="linkGlowStop()"></input>
+			<input type="button" value="获取闪动中的节点" onClick="getGlowingNodes()"></input>
+			<input type="button" value="获取闪动中的连接线" onClick="getGlowingLinks()"></input>
+		</div>
+		<div style="widht:100%;padding:5px;margin:5px">
+			界面调整：
+			<input type="button" value="隐藏palette" onClick="hidePalette()"></input>
+			<input type="button" value="显示palette" onClick="showPalette()"></input>
+			<input type="button" value="隐藏选择按钮" onClick="hideSelectBtn()"></input>
+			<input type="button" value="显示选择按钮" onClick="showSelectBtn()"></input>
+			<input type="button" value="隐藏连接按钮" onClick="hideLinkBtn()"></input>
+			<input type="button" value="显示连接按钮" onClick="showLinkBtn()"></input>
+			<input type="button" value="隐藏编辑按钮" onClick="hideEditBtn()"></input>
+			<input type="button" value="显示编辑按钮" onClick="showEditBtn()"></input>
+			<input type="button" value="隐藏删除按钮" onClick="hideRemoveBtn()"></input>
+			<input type="button" value="显示删除按钮" onClick="showRemoveBtn()"></input>
+		</div>
+
+		<script type="text/javascript">
+			var data = { 
+				"links" : [
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F1", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F2", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F3", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F4", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F5", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086" },
+					
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E416" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E426" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E436" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E446" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E456" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E466" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E416", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E456" },
+					{ "from" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E436", "to" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E426" }
+				], "nodes" : [
+					{ "uid" : "E68E28AC-C9FB-93E8-96C2-F17271C4B086", "type" : "node", "text" : "META_MAG_MENU","level":0,"img":"../assets/link_add.png" },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC", "type" : "node", "text" : "META_MAG_MENU_USER_MAPP","level":1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F1", "type" : "node", "text" : "节点","level":-1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F2", "type" : "node", "text" : "节点","level":-1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F6", "type" : "node", "text" : "节点","level":-1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F3", "type" : "node", "text" : "节点","level":-1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F4", "type" : "node", "text" : "节点","level":1 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E4F5", "type" : "node", "text" : "节点","level":1 },
+					
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E416", "type" : "node", "text" : "节点","level":2 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E426", "type" : "node", "text" : "节点","level":2 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E436", "type" : "node", "text" : "节点","level":2 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E446", "type" : "node", "text" : "节点","level":2 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E456", "type" : "node", "text" : "节点","level":2 },
+					{ "uid" : "CCA5490A-E4C7-AAF2-77E9-F1726D96E466", "type" : "node", "text" : "节点","level":2 }
+				] 
+			};
+			var node ={ "uid" : "CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC", "y" : 100, "type" : "end", "x" : 240, "text" : "结束结束结束",tooltip:"sssssssssssssssssssssssssssssss" };
+			var flow = new Flow(
+				{
+					div:'flow_div',
+					layout:'queue',//random、queue、none,默认为none,注意大小写敏感
+					swf:'../swf/Flow.swf',
+					onReady:function(flow){
+						document.getElementById('mask_div').style.display="none";
+					},onCanvasContextMenu:function(){
+						return [
+							{"img":"../assets/link_add.png","text":"测试菜单1","handler":function(){
+								alert('测试菜单');
+							}},
+							{"img":"../assets/link_add.png","text":"测试菜单2"},
+							{"img":"../assets/link_add.png","text":"测试菜单3"},
+							{"text":"测试菜单4"},
+							{"text":"测试菜单5","handler":function(){
+								alert('测试菜单');
+							}}
+						];
+					},onNodeContextMenu:function(nodeId){
+						return [
+							{"img":"../assets/link_add.png","text":"节点菜单1","handler":function(){
+								alert('节点菜单');
+							}},
+							{"img":"../assets/link_add.png","text":"节点菜单2"},
+							{"img":"../assets/link_add.png","text":"节点菜单3"},
+							{"text":"节点菜单4"},
+							{"text":"节点菜单5","handler":function(){
+								alert('节点菜单');
+							}}
+						];
+					},onLinkContextMenu:function(fromNodeId,toNodeId){
+						return [
+							{"img":"../assets/link_add.png","text":"连接菜单1","handler":function(){
+								alert('连接菜单');
+							}},
+							{"img":"../assets/link_add.png","text":"连接菜单2"},
+							{"img":"../assets/link_add.png","text":"连接菜单3"},
+							{"text":"连接菜单4"},
+							{"text":"连接菜单5","handler":function(){
+								alert('连接菜单');
+							}}
+						];
+					},onNodeDblClick:function(nodeId){
+						alert(nodeId);
+					},onLinkDblClick:function(from,to){
+						alert(from+"*"+to);
+					},onBeforeDeleteNode:function(nodeId){
+						alert(nodeId);
+						return true;
+					},onAfterDeleteNode:function(nodeId){
+						alert(nodeId);
+					},onBeforeLink:function(fromUID,toUID){
+						alert(fromUID+"*"+toUID);
+						return true;
+					},onAfterLink:function(fromUID,toUID){
+						alert(fromUID+"*"+toUID);
+					},onBeforeDeleteLink:function(fromUID,toUID){
+						alert(fromUID+"*"+toUID);
+						return true;
+					},onAfterDeleteLink:function(fromUID,toUID){
+						alert(fromUID+"*"+toUID);
+					}
+				}
+			);
+			
+			function loadNodes(){
+				flow.loadNodes(data);
+			}
+			
+			function getAllNodes(){
+				alert(flow.getAllNodes().toString());
+			}
+			
+			function removeAllNode(){
+				flow.removeAllNode();
+			}
+			
+			function addNode(){
+				flow.addNode(node);
+			}
+			
+			function addLink(){
+				flow.addLink("CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC","CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC");
+			}
+			
+			function selectNode(){
+				flow.selectNode('CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC');
+			}
+			
+			function setNodeDefaultColor(){
+				flow.setNodeDefaultColor(0xeeeeee);
+			}
+			
+			function setNodeColor(){
+				flow.setNodeColor("E68E28AC-C9FB-93E8-96C2-F17271C4B086",0xffffff);
+			}
+			
+			function getNode(){
+				alert(flow.getNode("E68E28AC-C9FB-93E8-96C2-F17271C4B086"));
+			}
+			
+			function getLink(){
+				alert(flow.getLink("CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC","CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC"));
+			}
+			
+			function setNodeGlowColor(){
+				flow.setNodeGlowColor('CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC',0x999ddd);
+			}
+			
+			function nodeGlowPlay(){
+				flow.nodeGlowPlay('CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC');
+			}
+			
+			function nodeGlowStop(){
+				flow.nodeGlowStop('CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC');
+			}
+			
+			function setLinkGlowColor(){
+				flow.setLinkGlowColor("CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC","CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC",0x999ddd);
+			}
+			
+			function linkGlowPlay(){
+				flow.linkGlowPlay("CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC","CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC");
+			}
+			
+			function linkGlowStop(){
+				flow.linkGlowStop("CCA5490A-E4C7-AAFF-77E9-F1726D96E4FC","CCA5490A-E4C7-AAF2-77E9-F1726D96E4FC");
+			}
+			
+			function hidePalette(){
+				flow.hidePalette();
+			}
+			
+			function showPalette(){
+				flow.showPalette();
+			}
+			
+			function hideSelectBtn(){
+				flow.hideSelectBtn();
+			}
+			
+			function showSelectBtn(){
+				flow.showSelectBtn();
+			}
+			
+			function hideLinkBtn(){
+				flow.hideLinkBtn();
+			}
+			
+			function showLinkBtn(){
+				flow.showLinkBtn();
+			}
+			
+			function hideEditBtn(){
+				flow.hideEditBtn();
+			}
+			
+			function showEditBtn(){
+				flow.showEditBtn();
+			}
+			
+			function hideRemoveBtn(){
+				flow.hideRemoveBtn();
+			}
+			
+			function showRemoveBtn(){
+				flow.showRemoveBtn();
+			}
+			function getGlowingNodes(){
+				alert(flow.getGlowingNodes());
+			}
+			
+			function getGlowingLinks(){
+				alert(flow.getGlowingLinks());
+			}
+		</script>
+   </body>
+</html>

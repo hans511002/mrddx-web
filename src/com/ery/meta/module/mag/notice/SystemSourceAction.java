@@ -17,7 +17,7 @@ import com.sun.management.OperatingSystemMXBean;
  */
 
 public class SystemSourceAction {
-	private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");  
+	private static final DecimalFormat decimalFormat = new DecimalFormat("#.###");
 	private static final int Heap_Configuration = 1;
 	private static final int PS_Young_Generation = 2;
 	private static final int PS_Old_Generation = 3;
@@ -130,13 +130,13 @@ public class SystemSourceAction {
 		// get pid
 		String pid = name.split("@")[0];
 		DataInputStream ls_in = null;
-		System.out.println("pid="+pid);
+		System.out.println("pid=" + pid);
 
-//		 Map<String, String> cateConfig = new HashMap<String, String>();
-//		 cateConfig.put(Heap_Configuration_MinHeapFreeRatio, "11111111");
-//		 cateConfig.put(Heap_Configuration_MaxHeapFreeRatio, "22222222");
-//		 map.put("serverconfig", cateConfig);
-		
+		// Map<String, String> cateConfig = new HashMap<String, String>();
+		// cateConfig.put(Heap_Configuration_MinHeapFreeRatio, "11111111");
+		// cateConfig.put(Heap_Configuration_MaxHeapFreeRatio, "22222222");
+		// map.put("serverconfig", cateConfig);
+
 		Map<String, String> cateConfig = new HashMap<String, String>();
 		Map<String, String> cateYoung = new HashMap<String, String>();
 		Map<String, String> cateOld = new HashMap<String, String>();
@@ -150,7 +150,7 @@ public class SystemSourceAction {
 		map.put("system", cateSystem);
 
 		String osName = System.getProperties().getProperty("os.name");
-		if (osName != null && osName.startsWith("Windows")){
+		if (osName != null && osName.startsWith("Windows")) {
 			try {
 				Process process = Runtime.getRuntime().exec("jmap -heap " + pid);
 				String ls_str = null;
@@ -168,7 +168,7 @@ public class SystemSourceAction {
 					} else if ("PS Perm Generation".equals(ls_str)) {
 						type = PS_Perm_Generation;
 					}
-					
+
 					if (type == PS_Young_Generation) {
 						if (ls_str.equals("Eden Space")) {
 							childType = PS_Young_Generation_Eden_Space;
@@ -178,7 +178,7 @@ public class SystemSourceAction {
 							childType = PS_Young_Generation_To_Space;
 						}
 					}
-					
+
 					switch (type) {
 					case Heap_Configuration:
 						heapConfiguration(ls_str, cateConfig);
@@ -195,7 +195,7 @@ public class SystemSourceAction {
 					default:
 						break;
 					}
-					
+
 				}
 			} catch (IOException e) {
 				System.exit(0);
@@ -208,7 +208,7 @@ public class SystemSourceAction {
 			}
 			this.getSystemInfo(cateSystem);
 		}
-		
+
 		Map<String, Map<String, String>> newMap = new HashMap<String, Map<String, String>>();
 		for (String key : map.keySet()) {
 			Map<String, String> cateMap = map.get(key);
@@ -217,7 +217,7 @@ public class SystemSourceAction {
 				String chnName = MAP_NAME_RELATION.get(keys);
 				tmpMap.put(chnName == null ? keys : MAP_NAME_RELATION.get(keys), cateMap.get(keys));
 			}
-			
+
 			newMap.put(key, tmpMap);
 		}
 
@@ -225,10 +225,9 @@ public class SystemSourceAction {
 	}
 
 	/**
-	 * 格式： MinHeapFreeRatio = 40 MaxHeapFreeRatio = 70 MaxHeapSize = 4154458112
-	 * (3962.0MB) NewSize = 1310720 (1.25MB) MaxNewSize = 17592186044415 MB
-	 * OldSize = 5439488 (5.1875MB) NewRatio = 2 SurvivorRatio = 8 PermSize =
-	 * 21757952 (20.75MB) MaxPermSize = 85983232 (82.0MB)
+	 * 格式： MinHeapFreeRatio = 40 MaxHeapFreeRatio = 70 MaxHeapSize = 4154458112 (3962.0MB) NewSize = 1310720 (1.25MB) MaxNewSize =
+	 * 17592186044415 MB OldSize = 5439488 (5.1875MB) NewRatio = 2 SurvivorRatio = 8 PermSize = 21757952 (20.75MB) MaxPermSize =
+	 * 85983232 (82.0MB)
 	 * 
 	 * @param ls_str
 	 * @param map
@@ -263,13 +262,10 @@ public class SystemSourceAction {
 	}
 
 	/**
-	 * 新生代 格式 PS Young Generation Eden Space: capacity = 64880640 (61.875MB)
-	 * used = 45608984 (43.496116638183594MB) free = 19271656
-	 * (18.378883361816406MB) 70.29675416272096% used From Space: capacity =
-	 * 10813440 (10.3125MB) used = 8192688 (7.8131561279296875MB) free = 2620752
-	 * (2.4993438720703125MB) 75.76393821022727% used To Space: capacity =
-	 * 10813440 (10.3125MB) used = 0 (0.0MB) free = 10813440 (10.3125MB) 0.0%
-	 * used
+	 * 新生代 格式 PS Young Generation Eden Space: capacity = 64880640 (61.875MB) used = 45608984 (43.496116638183594MB) free =
+	 * 19271656 (18.378883361816406MB) 70.29675416272096% used From Space: capacity = 10813440 (10.3125MB) used = 8192688
+	 * (7.8131561279296875MB) free = 2620752 (2.4993438720703125MB) 75.76393821022727% used To Space: capacity = 10813440
+	 * (10.3125MB) used = 0 (0.0MB) free = 10813440 (10.3125MB) 0.0% used
 	 * 
 	 * @param ls_str
 	 * @param childType
@@ -315,9 +311,8 @@ public class SystemSourceAction {
 	}
 
 	/**
-	 * PS Old Generation capacity = 173080576 (165.0625MB) used = 5391144
-	 * (5.141395568847656MB) free = 167689432 (159.92110443115234MB)
-	 * 3.1148174593548843% used
+	 * PS Old Generation capacity = 173080576 (165.0625MB) used = 5391144 (5.141395568847656MB) free = 167689432
+	 * (159.92110443115234MB) 3.1148174593548843% used
 	 * 
 	 * @param ls_str
 	 * @param map
@@ -340,9 +335,8 @@ public class SystemSourceAction {
 	/**
 	 * 持久代
 	 * 
-	 * 格式 PS Perm Generation capacity = 47185920 (45.0MB) used = 44074664
-	 * (42.032875061035156MB) free = 3111256 (2.9671249389648438MB)
-	 * 93.40638902452257% used
+	 * 格式 PS Perm Generation capacity = 47185920 (45.0MB) used = 44074664 (42.032875061035156MB) free = 3111256
+	 * (2.9671249389648438MB) 93.40638902452257% used
 	 * 
 	 * @param ls_str
 	 * @param map
@@ -365,7 +359,7 @@ public class SystemSourceAction {
 	private void getSystemInfo(Map<String, String> map) {
 		// 可使用内存
 		long totalMemory = Runtime.getRuntime().totalMemory();
-		
+
 		// 剩余内存
 		long freeMemory = Runtime.getRuntime().freeMemory();
 		// 最大可使用内存
@@ -386,10 +380,10 @@ public class SystemSourceAction {
 		map.put(SYSTEMINFO_FREE_PHYSICAL_MEMORY, this.getFormatValue(freePhysicalMemorySize));
 		map.put(SYSTEMINFO_USED_PHYSICAL_MEMORY, this.getFormatValue(usedMemory));
 	}
-	
-	private String getFormatValue(long value){
-		 BigDecimal bd1 = new BigDecimal(value); 
-		 BigDecimal bd2 = new BigDecimal(1024*1024);
-		 return decimalFormat.format(bd1.divide(bd2)).toString()+" MB";
+
+	private String getFormatValue(long value) {
+		BigDecimal bd1 = new BigDecimal(value);
+		BigDecimal bd2 = new BigDecimal(1024 * 1024);
+		return decimalFormat.format(bd1.divide(bd2)).toString() + " MB";
 	}
 }

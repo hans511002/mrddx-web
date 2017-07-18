@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.sys.podo.BaseDAO;
+import com.ery.base.support.utils.Convert;
 import com.ery.meta.common.Constant;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 import com.ery.meta.module.mag.user.UserConstant;
 
-import com.ery.base.support.sys.podo.BaseDAO;
-import com.ery.base.support.utils.Convert;
-
 /**
-
+ * 
  * 该类是部门查询DAO类，用于连接数据库操作，供DeptAction调用
  * 
-
+ * 
  * @date 2011-9-26 ----------------------
  * @modify 程钰 怎就关联用户的DAO,修改查询条件
  * @modifyDate 2011-10-11
@@ -44,13 +43,10 @@ public class DeptDAO extends BaseDAO {
 	 */
 	public List<Map<String, Object>> queryDept(Map<?, ?> queryData) {
 		/**
-		 * StringBuffer sqlQueryDept = new StringBuffer(
-		 * "SELECT A.DEPT_ID, A.PARENT_ID, A.DEPT_NAME, A.DEPT_SN, A.DEPT_STATE, "
-		 * +
-		 * "DECODE(NVL(C.CNT,0),0,0,1) AS CHILDREN FROM META_MAG_USER_DEPT A LEFT JOIN "
-		 * +
-		 * "(SELECT PARENT_ID,COUNT(1) CNT FROM META_MAG_USER_DEPT GROUP BY PARENT_ID) C "
-		 * + "ON A.DEPT_ID=C.PARENT_ID WHERE 1=1 ");
+		 * StringBuffer sqlQueryDept = new StringBuffer( "SELECT A.DEPT_ID, A.PARENT_ID, A.DEPT_NAME, A.DEPT_SN, A.DEPT_STATE, " +
+		 * "DECODE(NVL(C.CNT,0),0,0,1) AS CHILDREN FROM META_MAG_USER_DEPT A LEFT JOIN " +
+		 * "(SELECT PARENT_ID,COUNT(1) CNT FROM META_MAG_USER_DEPT GROUP BY PARENT_ID) C " +
+		 * "ON A.DEPT_ID=C.PARENT_ID WHERE 1=1 ");
 		 **/
 		StringBuffer sqlQueryDept = new StringBuffer(
 				"SELECT A.DEPT_ID, A.DEPT_PAR_ID AS PARENT_ID, A.DEPT_NAME, A.ORDER_ID AS DEPT_SN, A.STATE AS DEPT_STATE, "
@@ -120,26 +116,28 @@ public class DeptDAO extends BaseDAO {
 	/**
 	 * 根据岗位关联用户
 	 * 
-	 * @param condtions 限制条件
-	 * @param page 分页
+	 * @param condtions
+	 *            限制条件
+	 * @param page
+	 *            分页
 	 * @return
 	 */
 	public List<Map<String, Object>> queryUserByCondition(Map<String, Object> condtions, Page page) {
-		StringBuffer sql = new StringBuffer("SELECT A.USER_ID,A.USER_EMAIL,A.USER_PASS,A.USER_NAMECN, "
-				+ "A.STATE,A.USER_MOBILE,D.STATION_NAME,A.ADMIN_FLAG,A.HEAD_SHIP, "
-				+ "A.CREATE_DATE,A.USER_NAMEEN,A.OA_USER_NAME,B.ZONE_NAME,C.DEPT_NAME, "
-				+ "A.USER_SN,A.VIP_FLAG,A.GROUP_ID FROM META_MAG_USER A LEFT JOIN "
-				+ "META_DIM_ZONE B ON A.ZONE_ID=B.ZONE_ID LEFT JOIN "
-				+ "META_DIM_USER_DEPT C ON A.DEPT_ID=C.DEPT_CODE LEFT JOIN "
-				+ "META_DIM_USER_STATION D ON A.STATION_ID=D.STATION_CODE " + "WHERE A.USER_ID<>"
-				+ UserConstant.ADMIN_USERID + " ");
+		StringBuffer sql = new StringBuffer("SELECT A.USER_ID,A.USER_EMAIL,A.USER_PASS,A.USER_NAMECN, " +
+				"A.STATE,A.USER_MOBILE,D.STATION_NAME,A.ADMIN_FLAG,A.HEAD_SHIP, " +
+				"A.CREATE_DATE,A.USER_NAMEEN,A.OA_USER_NAME,B.ZONE_NAME,C.DEPT_NAME, " +
+				"A.USER_SN,A.VIP_FLAG,A.GROUP_ID FROM META_MAG_USER A LEFT JOIN " +
+				"META_DIM_ZONE B ON A.ZONE_ID=B.ZONE_ID LEFT JOIN " +
+				"META_DIM_USER_DEPT C ON A.DEPT_ID=C.DEPT_CODE LEFT JOIN " +
+				"META_DIM_USER_STATION D ON A.STATION_ID=D.STATION_CODE " + "WHERE A.USER_ID<>" +
+				UserConstant.ADMIN_USERID + " ");
 		List<Object> params = new ArrayList<Object>();
 		if (condtions != null && condtions.get("userName") != null && !condtions.get("userName").toString().equals("")) {// 姓名
 			sql.append("AND USER_NAMECN LIKE ? ");
 			params.add("%" + Convert.toString(condtions.get("userName")) + "%");
 		}
-		if (condtions != null && condtions.get("userDept") != null
-				&& !condtions.get("userDept").toString().equals("-1")) {// 地域
+		if (condtions != null && condtions.get("userDept") != null &&
+				!condtions.get("userDept").toString().equals("-1")) {// 地域
 			sql.append("AND DEPT_ID IN (SELECT DEPT_ID FROM META_DIM_USER_DEPT "
 					+ "START WITH DEPT_ID=? CONNECT BY PRIOR DEPT_ID=DEPT_PAR_ID) ");
 			params.add(Integer.parseInt(String.valueOf(condtions.get("userDept"))));
@@ -148,18 +146,19 @@ public class DeptDAO extends BaseDAO {
 		String pageSql = sql.toString();
 		// 分页包装
 		if (page != null) {
-			pageSql = SqlUtils.wrapPagingSql(sql.toString(), page);
+			pageSql = SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page);
 		}
 		return getDataAccess().queryForList(pageSql, params.toArray());
 	}
 
 	/**
-	 * 加载从起始节点到结束节点之间有路径关系节点的所有数据，而不是加载从起始节点到结束节点之间所有的节点数据。
-	 * 比如可以查询起始部门为0，结束部门为7之间树集关系的所有的数据，而部门7必然为部门0下的部门。
+	 * 加载从起始节点到结束节点之间有路径关系节点的所有数据，而不是加载从起始节点到结束节点之间所有的节点数据。 比如可以查询起始部门为0，结束部门为7之间树集关系的所有的数据，而部门7必然为部门0下的部门。
 	 * 
-
-	 * @param beginId 起始部门ID。
-	 * @param endId 结束部门ID，如=0，只查找从指定起始节点下的两层树形数据。
+	 * 
+	 * @param beginId
+	 *            起始部门ID。
+	 * @param endId
+	 *            结束部门ID，如=0，只查找从指定起始节点下的两层树形数据。
 	 * @return
 	 */
 	public List<Map<String, Object>> queryDeptByBeginEndPath(int beginId, int endId) {
@@ -176,11 +175,11 @@ public class DeptDAO extends BaseDAO {
 			sql.append("WHERE A.DEPT_PAR_ID IN ");
 			sql.append("(SELECT A.DEPT_ID FROM META_DIM_USER_DEPT A  ");
 			sql.append("WHERE  LEVEL<= ");
-			sql.append("(SELECT NVL(MAX(L),99999999999999) FROM (SELECT DEPT_ID,DEPT_PAR_ID, LEVEL L "
-					+ "FROM META_DIM_USER_DEPT CONNECT BY PRIOR DEPT_PAR_ID=DEPT_ID START WITH DEPT_ID=" + endId
-					+ ") A " + "WHERE A." + (beginId == Constant.DEFAULT_ROOT_PARENT ? "DEPT_PAR_ID=" : "DEPT_ID=")
-					+ beginId + " )" + " CONNECT BY  PRIOR A.DEPT_ID=A.DEPT_PAR_ID START WITH "
-					+ (beginId == Constant.DEFAULT_ROOT_PARENT ? "DEPT_PAR_ID=" : "DEPT_ID=") + beginId + ") ");
+			sql.append("(SELECT NVL(MAX(L),99999999999999) FROM (SELECT DEPT_ID,DEPT_PAR_ID, LEVEL L " +
+					"FROM META_DIM_USER_DEPT CONNECT BY PRIOR DEPT_PAR_ID=DEPT_ID START WITH DEPT_ID=" + endId +
+					") A " + "WHERE A." + (beginId == Constant.DEFAULT_ROOT_PARENT ? "DEPT_PAR_ID=" : "DEPT_ID=") +
+					beginId + " )" + " CONNECT BY  PRIOR A.DEPT_ID=A.DEPT_PAR_ID START WITH " +
+					(beginId == Constant.DEFAULT_ROOT_PARENT ? "DEPT_PAR_ID=" : "DEPT_ID=") + beginId + ") ");
 			if (beginId == Constant.DEFAULT_ROOT_PARENT) {
 				sql.append("OR A.DEPT_PAR_ID =" + beginId);
 			}
@@ -196,7 +195,6 @@ public class DeptDAO extends BaseDAO {
 	 * 
 	 * @param begionId
 	 * @return
-
 	 */
 	public List<Map<String, Object>> queryAllDeptForBegin(int begionId) {
 		String sql = "SELECT A.DEPT_ID, A.DEPT_PAR_ID AS PARENT_ID,A.DEPT_NAME,A.ORDER_ID AS DEPT_SN,A.STATE AS DEPT_STATE ,DECODE(NVL(C.CNT,0),0,0,1) AS CHILDREN "
@@ -212,10 +210,18 @@ public class DeptDAO extends BaseDAO {
 	 * @return
 	 */
 	public Map<String, Object> queryDeptInfo(int deptId) {
-		String sqlQuerySubDept = "SELECT A.DEPT_ID, A.DEPT_PAR_ID AS PARENT_ID, A.DEPT_NAME, A.ORDER_ID AS DEPT_SN, A.STATE AS DEPT_STATE, "
-				+ "DECODE(NVL(C.CNT,0),0,0,1) AS CHILDREN FROM META_DIM_USER_DEPT A LEFT JOIN "
-				+ "(SELECT DEPT_PAR_ID, COUNT(1) CNT FROM META_DIM_USER_DEPT GROUP BY DEPT_PAR_ID) "
-				+ "C ON A.DEPT_ID=C.DEPT_PAR_ID WHERE  A.DEPT_ID=? ORDER BY CHILDREN DESC";
+		String sqlQuerySubDept = null;
+		if ("mysql".equals(getDataAccess().getDatabaseName())) {
+			sqlQuerySubDept = "SELECT A.DEPT_ID, A.DEPT_PAR_ID AS PARENT_ID, A.DEPT_NAME, A.ORDER_ID AS DEPT_SN, A.STATE AS DEPT_STATE, "
+					+ "if(ifnull(C.CNT,0)=0,0,1) AS CHILDREN FROM META_DIM_USER_DEPT A LEFT JOIN "
+					+ "(SELECT DEPT_PAR_ID, COUNT(1) CNT FROM META_DIM_USER_DEPT GROUP BY DEPT_PAR_ID) "
+					+ "C ON A.DEPT_ID=C.DEPT_PAR_ID WHERE  A.DEPT_ID=? ORDER BY CHILDREN DESC";
+		} else {
+			sqlQuerySubDept = "SELECT A.DEPT_ID, A.DEPT_PAR_ID AS PARENT_ID, A.DEPT_NAME, A.ORDER_ID AS DEPT_SN, A.STATE AS DEPT_STATE, "
+					+ "DECODE(NVL(C.CNT,0),0,0,1) AS CHILDREN FROM META_DIM_USER_DEPT A LEFT JOIN "
+					+ "(SELECT DEPT_PAR_ID, COUNT(1) CNT FROM META_DIM_USER_DEPT GROUP BY DEPT_PAR_ID) "
+					+ "C ON A.DEPT_ID=C.DEPT_PAR_ID WHERE  A.DEPT_ID=? ORDER BY CHILDREN DESC";
+		}
 		return getDataAccess().queryForMap(sqlQuerySubDept, deptId);
 	}
 }

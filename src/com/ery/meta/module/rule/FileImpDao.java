@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
-
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 
 public class FileImpDao extends MetaBaseDAO {
 	/**
@@ -33,7 +31,7 @@ public class FileImpDao extends MetaBaseDAO {
 		sql += "ORDER BY T.FILETYPE_IMP_REL_ID DESC";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -71,7 +69,8 @@ public class FileImpDao extends MetaBaseDAO {
 	/**
 	 * 删除动态入库映射
 	 * 
-	 * @param id 映射ID
+	 * @param id
+	 *            映射ID
 	 */
 	public void deleteFileImp(String id) {
 		String sql = "DELETE FROM TB_CDR_FILE_TYPE_IMP_REL WHERE FILETYPE_IMP_REL_ID=?";

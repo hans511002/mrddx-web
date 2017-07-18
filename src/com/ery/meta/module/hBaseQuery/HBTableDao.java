@@ -9,20 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.ery.base.support.jdbc.IParamsSetter;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.jdbc.IParamsSetter;
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
  * 
-
  * 
-
+ * 
+ * 
  * @description 表管理的 Dao
  * @date 2013-4-25
  */
@@ -68,7 +67,7 @@ public class HBTableDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -476,7 +475,8 @@ public class HBTableDao extends MetaBaseDAO {
 	 * 
 	 * @param name
 	 * @param defaultName
-	 * @param type 0:列簇， 1：列
+	 * @param type
+	 *            0:列簇， 1：列
 	 * @return
 	 */
 	public String getNextName(String name, String defaultName, int type) {
@@ -680,8 +680,8 @@ public class HBTableDao extends MetaBaseDAO {
 						break;
 					}
 				}
-				if (Convert.toString(data.get("paramDefineName")) != null
-						&& Convert.toString(data.get("paramDefineName")).length() > 0) {
+				if (Convert.toString(data.get("paramDefineName")) != null &&
+						Convert.toString(data.get("paramDefineName")).length() > 0) {
 
 				}
 				preparedStatement.setObject(1, 1033);

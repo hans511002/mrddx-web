@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
-
-import com.ery.base.support.utils.MapUtils;
-
 
 public class CheckQuotaDAO extends MetaBaseDAO {
 	/**
@@ -41,7 +39,7 @@ public class CheckQuotaDAO extends MetaBaseDAO {
 
 		List<Object> param = new ArrayList<Object>();
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;

@@ -1,0 +1,12 @@
+@CHARSET "UTF-8";
+.login-container{
+	width:100%;
+	height:100%;
+	background-color: #4A7FBE;
+}
+.login-panel{
+	height:32%;margin: 0px;padding: 0px;
+}
+.login-form{
+	width:567px;height:292px;background-image: url('../images/login-panel.gif');margin: 0px;padding: 0px;
+}

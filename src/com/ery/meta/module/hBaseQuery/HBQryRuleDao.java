@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
@@ -13,14 +15,11 @@ import com.ery.meta.common.SqlUtils;
 import com.ery.meta.module.mag.login.LoginConstant;
 import com.ery.meta.web.session.SessionManager;
 
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
  * 
-
  * 
-
+ * 
+ * 
  * @description 查询规则的 Dao
  * @date 2013-4-29
  */
@@ -40,43 +39,41 @@ public class HBQryRuleDao extends MetaBaseDAO {
 		String userId = formatUser.get("userId").toString();
 		String rolesql = "select count(*) from META_MR_USER_ADDACTION where action_type = 8001 and user_id = " + userId;
 
-		String sql = "SELECT A.QRY_RULE_ID,"
-				+ "       A.DATA_SOURCE_ID,"
-				+ "       B.hb_table_name,"
-				+ "       C.DATA_SOURCE_NAME,"
-				+
+		String sql = "SELECT A.QRY_RULE_ID," +
+				"       A.DATA_SOURCE_ID," +
+				"       B.hb_table_name," +
+				"       C.DATA_SOURCE_NAME," +
 				// "       E.USER_NAME," +
-				"       A.PARALLEL_NUM,"
-				+ "       A.HBASE_TABLE_PARTITION,"
-				+ "       A.PAGINATION_SIZE,"
-				+ "       A.SUPPORT_SORT,"
-				+ "       A.SORT_TYPE,"
-				+ "       A.DEF_SORT_COLUMN,"
-				+ "       A.STATE,"
-				+ "       A.SCANNER_CACHING_SIZE,"
-				+ "       A.SCANNER_READ_CACHE_SIZE,"
-				+ "       A.QRY_TYPE,"
-				+ "       A.CLIENT_ROWS_BUFFER_SIZE,"
-				+ "       A.LOG_FLAG,"
-				+ "       A.LOG_FLAG_DETAIL,"
-				+ "       A.QRY_RULE_NAME,"
-				+ "       A.QRY_RULE_MSG,"
-				+ " decode(m.view_action,null,0,m.view_action) \"VIEW\",decode(m.modify_action,null,0,m.modify_action) modi,decode(m.delete_action,null,0,m.delete_action) del,"
-				+ " decode(m.create_user_id," + userId + ",1,0) creater"
-				+ "  FROM HB_QRY_RULE A"
-				+ "  left join HB_TABLE_INFO B on A.HB_TABLE_ID = B.hb_table_id"
-				+ "  inner join HB_DATA_SOURCE C on A.DATA_SOURCE_ID = C.DATA_SOURCE_ID"
-				+
+				"       A.PARALLEL_NUM," +
+				"       A.HBASE_TABLE_PARTITION," +
+				"       A.PAGINATION_SIZE," +
+				"       A.SUPPORT_SORT," +
+				"       A.SORT_TYPE," +
+				"       A.DEF_SORT_COLUMN," +
+				"       A.STATE," +
+				"       A.SCANNER_CACHING_SIZE," +
+				"       A.SCANNER_READ_CACHE_SIZE," +
+				"       A.QRY_TYPE," +
+				"       A.CLIENT_ROWS_BUFFER_SIZE," +
+				"       A.LOG_FLAG," +
+				"       A.LOG_FLAG_DETAIL," +
+				"       A.QRY_RULE_NAME," +
+				"       A.QRY_RULE_MSG," +
+				" decode(m.view_action,null,0,m.view_action) \"VIEW\",decode(m.modify_action,null,0,m.modify_action) modi,decode(m.delete_action,null,0,m.delete_action) del," +
+				" decode(m.create_user_id," + userId + ",1,0) creater" +
+				"  FROM HB_QRY_RULE A" +
+				"  left join HB_TABLE_INFO B on A.HB_TABLE_ID = B.hb_table_id" +
+				"  inner join HB_DATA_SOURCE C on A.DATA_SOURCE_ID = C.DATA_SOURCE_ID" +
 				// "  HB_QRY_RULE_USER_REL D" +
 				// "  HB_SERVER_USER E" +
-				" left join META_MR_USER_AUTHOR m on m.user_id= " + userId
-				+ " and m.task_id = a.QRY_RULE_ID and m.task_type =3" + " WHERE 1=1 ";
+				" left join META_MR_USER_AUTHOR m on m.user_id= " + userId +
+				" and m.task_id = a.QRY_RULE_ID and m.task_type =3" + " WHERE 1=1 ";
 		// "	AND A.Qry_Rule_Id = D.QRY_RULE_ID ";
 		// "	AND D.USER_ID = E.USER_ID";
 
 		if (getDataAccess().queryForInt(rolesql) == 0) {
-			sql += " and A.QRY_RULE_ID in (select task_id from META_MR_USER_AUTHOR where task_type=3 and user_id = "
-					+ userId + ")";
+			sql += " and A.QRY_RULE_ID in (select task_id from META_MR_USER_AUTHOR where task_type=3 and user_id = " +
+					userId + ")";
 		}
 
 		List<Object> params = new ArrayList<Object>();
@@ -145,7 +142,7 @@ public class HBQryRuleDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -179,13 +176,11 @@ public class HBQryRuleDao extends MetaBaseDAO {
 		// String hbName = MapUtils.getString(data, "HB_NAME");
 
 		/*
-		 * if(null != hbName & !"".equals(hbName)){ sql +=
-		 * "AND b.hb_table_name LIKE ? ESCAPE '/'"; params.add("%" + hbName +
+		 * if(null != hbName & !"".equals(hbName)){ sql += "AND b.hb_table_name LIKE ? ESCAPE '/'"; params.add("%" + hbName +
 		 * "%"); }
 		 */
 		/*
-		 * if(sourceId!=-1){ sql += "AND a.DATA_SOURCE_ID LIKE ? ESCAPE '/'";
-		 * params.add("%" + sourceId + "%"); }
+		 * if(sourceId!=-1){ sql += "AND a.DATA_SOURCE_ID LIKE ? ESCAPE '/'"; params.add("%" + sourceId + "%"); }
 		 */
 		String columnSort = MapUtils.getString(data, "_COLUMN_SORT");
 		if (columnSort != null && !"".equals(columnSort)) {
@@ -195,13 +190,13 @@ public class HBQryRuleDao extends MetaBaseDAO {
 		}
 
 		int ruleid = Convert.toInt(qryRuleId, -1);
-		sql += " LEFT JOIN (select COLUMN_ID, SELECT_COLUMN_EN, STATISTICS_METHOD ,STATISTICS_FLAG from "
-				+ "                     HB_QRY_COLUMN_RULE B " + "                     where B.QRY_RULE_ID = " + ruleid
-				+ ") C " + "        ON  C.COLUMN_ID = F.COLUMN_IDS ";
+		sql += " LEFT JOIN (select COLUMN_ID, SELECT_COLUMN_EN, STATISTICS_METHOD ,STATISTICS_FLAG from " +
+				"                     HB_QRY_COLUMN_RULE B " + "                     where B.QRY_RULE_ID = " + ruleid +
+				") C " + "        ON  C.COLUMN_ID = F.COLUMN_IDS ";
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}

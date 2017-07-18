@@ -10,15 +10,15 @@ public class User {
 	private String sessionID;
 	private long logInTime;
 	private long logOutTime;
-	private int logId;
+	private long logId;
 	private Map<String, Object> lastVisitedMenu;
 	private Map<String, Object> userMap;
 
-	public int getLogId() {
+	public long getLogId() {
 		return logId;
 	}
 
-	public void setLogId(int logId) {
+	public void setLogId(long logId) {
 		this.logId = logId;
 	}
 

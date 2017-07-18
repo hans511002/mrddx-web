@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<Context>
+<!--  
+<Resource
+		name="jdbc/1"
+		type="javax.sql.DataSource"
+		driverClassName="oracle.jdbc.driver.OracleDriver"
+		url="jdbc:oracle:thin:@localhost:1521:ora10"
+		minIdle="2"
+		maxIdle="2"
+		maxWait="10000"
+		username="mrddx"
+		password="mrddx"
+		maxActive="50"
+		testOnBorrow="true" testWhileIdle="true"
+		validationQuery="SELECT 1 from dual"/> 
+ -->
+		
+<Resource
+      name="jdbc/1"
+      type="javax.sql.DataSource"
+      factory="com.alibaba.druid.pool.DruidDataSourceFactory"
+      auth="Container"
+      connectionProperties="config.file=db.properties"  
+      filters="config"
+      />
+
+
+</Context>

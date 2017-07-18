@@ -9,82 +9,80 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.jdbc.BinaryStream;
+import com.ery.base.support.log4j.LogUtils;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.DateUtil;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.jdbc.BinaryStream;
-import com.ery.base.support.log4j.LogUtils;
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
-
 public class FaqDao extends MetaBaseDAO {
-	
+
 	/**
 	 * 添加实施中出现的问题（提问）
+	 * 
 	 * @param data
 	 * @return
 	 * @throws UnsupportedEncodingException
 	 */
-	public boolean saveAskProblem(Map<String,Object> data) throws Exception {
-		 String sql = "INSERT INTO META_MAG_PROBLEM_DEAL(DEAL_ID, " +
-			 		" ASK_USER, ASK_AREA, ASK_DATE, PROBLEM_TITLE, " +
-			 		" PROBLEM_NOTE, PROBLEM_TYPE, FINISH_FLAG )" +
-			        " VALUES(SEQ_MAG_PROBLEM_DEAL_ID.NEXTVAL,?,?,?,?,?,?,0)";
- 
-		 ByteArrayInputStream byteIs = new ByteArrayInputStream(MapUtils.getString(data,"PROBLEM_NOTE").getBytes("GBK"));
-		 BinaryStream bs = new BinaryStream();
-		 bs.setInputStream(byteIs);
-		 
-		 List<Object> params = new ArrayList<Object>();
-		 params.add(MapUtils.getString(data,"ASK_USER"));
-		 params.add(Integer.parseInt(MapUtils.getString(data, "ASK_AREA")));
-		 params.add(new Date());
-		 params.add(MapUtils.getString(data, "PROBLEM_TITLE"));
-		 params.add(bs);
-		 params.add(Integer.parseInt(MapUtils.getString(data, "PROBLEM_TYPE")));
-	        
-		 return getDataAccess().execNoQuerySql(sql, params.toArray());
+	public boolean saveAskProblem(Map<String, Object> data) throws Exception {
+		String sql = "INSERT INTO META_MAG_PROBLEM_DEAL(DEAL_ID, " + " ASK_USER, ASK_AREA, ASK_DATE, PROBLEM_TITLE, "
+				+ " PROBLEM_NOTE, PROBLEM_TYPE, FINISH_FLAG )"
+				+ " VALUES(SEQ_MAG_PROBLEM_DEAL_ID.NEXTVAL,?,?,?,?,?,?,0)";
+
+		ByteArrayInputStream byteIs = new ByteArrayInputStream(MapUtils.getString(data, "PROBLEM_NOTE").getBytes("GBK"));
+		BinaryStream bs = new BinaryStream();
+		bs.setInputStream(byteIs);
+
+		List<Object> params = new ArrayList<Object>();
+		params.add(MapUtils.getString(data, "ASK_USER"));
+		params.add(Integer.parseInt(MapUtils.getString(data, "ASK_AREA")));
+		params.add(new Date());
+		params.add(MapUtils.getString(data, "PROBLEM_TITLE"));
+		params.add(bs);
+		params.add(Integer.parseInt(MapUtils.getString(data, "PROBLEM_TYPE")));
+
+		return getDataAccess().execNoQuerySql(sql, params.toArray());
 	}
-	
+
 	/**
 	 * 根据问题主题查询问题
-	 * @param title 问题主题
+	 * 
+	 * @param title
+	 *            问题主题
 	 * @param page
 	 * @return
 	 */
 	public List<Map<String, Object>> queryByTitle(String title, Page page) {
-	        String sql = "SELECT * FROM META_MAG_PROBLEM_DEAL T WHERE 1=1 ";
-	        List<Object> params = new ArrayList<Object>();
-	        
-	        if(null != title & !"".equals(title)){
-	        	sql += "AND PROBLEM_TITLE LIKE ? ESCAPE '/'";
-	        	params.add("%" + title + "%");
-	        }
-	        sql += " ORDER BY T.DEAL_ID DESC";
-	        
-	        // 分页包装
-	        if (page != null) {
-	        	sql = SqlUtils.wrapPagingSql(sql, page);
-	        }
-	        return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
-	 }
-	
+		String sql = "SELECT * FROM META_MAG_PROBLEM_DEAL T WHERE 1=1 ";
+		List<Object> params = new ArrayList<Object>();
+
+		if (null != title & !"".equals(title)) {
+			sql += "AND PROBLEM_TITLE LIKE ? ESCAPE '/'";
+			params.add("%" + title + "%");
+		}
+		sql += " ORDER BY T.DEAL_ID DESC";
+
+		// 分页包装
+		if (page != null) {
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
+		}
+		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
+	}
+
 	/**
-
+	 * 
 	 *
-
+	 * 
 	 * @description 实施问题处理DAO
-	 * @date 13-3-20
-	 * -
+	 * @date 13-3-20 -
 	 * @modify
 	 * @modifyData -
 	 */
-	
-	
+
 	/**
 	 * 通过实施ID取得数据
 	 */
@@ -162,7 +160,7 @@ public class FaqDao extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}

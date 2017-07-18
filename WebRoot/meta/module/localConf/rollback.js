@@ -1,0 +1,251 @@
+/******************************************************
+ *Copyrights @ 2014，Tianyuan DIC Information Co., Ltd.
+ *All rights reserved.
+ *
+ *Filename：
+ *        Rollback.js
+ *Description：
+ *        实时入库文件格式配置
+ *Dependent：
+ *
+ *Author: 王鹏坤
+ *
+ ********************************************************/
+ 
+ var dataTable = null;   //数据来源
+ var maintainWin = null;//窗口（新增，修改，查看）
+ 
+  /**
+ * 页面初始化
+ */
+function pageInit(){
+	var termReq = TermReqFactory.createTermReq(1);
+    var dataName = termReq.createTermControl("tableNameQ","TABLE_NAME");
+    dataName.setWidth(120);
+    dataName.setInputEnterCall(function(){
+        dataTable.Page.currPageNum = 1;
+        dataTable.refreshData();
+    });
+    dataInit();
+    dataTable.setPaging(true, 20);//分页
+    dataTable.render();//绘制函数，一些set方法必须在绘制函数之前，绘制函数之后内置的源生dhtmlxGrid对象被初始
+    dataTable.grid.setInitWidthsP("14,14,14,14,14,14,16");
+    dataTable.setGridColumnCfg(0,{align:"left"});
+    dataTable.setGridColumnCfg(1,{align:"left"});
+    dataTable.setGridColumnCfg(2,{align:"left"});
+    dataTable.setGridColumnCfg(3,{align:"left"});
+    dataTable.setGridColumnCfg(4,{align:"center"});
+    dataTable.setGridColumnCfg(5,{align:"center"});
+    dataTable.setGridColumnCfg(6,{align:"center"});
+    dataTable.setReFreshCall(queryData);
+    dhx.showProgress("请求数据中");
+    termReq.init(function(termVals){
+        dhx.closeProgress();
+        dataTable.refreshData();
+    }); //打包请求数据，初始，传入回调函数，里面开始查询数据
+
+    var queryBtn = document.getElementById("queryBtn");
+    var newBtn = document.getElementById("newBtn");
+    attachObjEvent(queryBtn,"onclick",function(){
+        dataTable.Page.currPageNum = 1;
+        dataTable.refreshData();
+    });
+    attachObjEvent(newBtn,"onclick",function(){
+        showData(0,1);
+    });
+}
+
+function dataInit(){
+    dataTable = new meta.ui.DataTable("container");
+    dataTable.setColumns({
+        TABLE_NAME : "ORACLE表名",
+        HBASE_TABLE_NAME: "HBASE表名",
+        ROWKEY_FIELD : "回退的ROWKEY组合信息",
+        ROWKEY_FIELD_ADJUST : "调帐的ROWKEY组合信息",
+        IS_LATN : "是否区分本地网",
+        IS_ENABLE : "是否能用",
+        OPP: "操作"
+
+    },"TABLE_NAME,HBASE_TABLE_NAME,ROWKEY_FIELD,ROWKEY_FIELD_ADJUST,IS_LATN,IS_ENABLE,ROLLBACK_ID");
+
+    dataTable.setFormatCellCall(function(rid, cid, data, colId){
+		if((data[cid]+"").indexOf("\&")!=-1){
+		    var dataTemp="";
+			var indexSplit = (data[cid]+"").split("&");
+			for(var i=0;i<indexSplit.length;i++){
+				dataTemp += indexSplit[i]+"&";		
+			}
+			return dataTemp;
+		}
+        if(colId == "OPP"){
+            return "<a href='javascript:void(0)' onclick='showData(\""+rid+"\",0);return false;'>查看</a>&nbsp;&nbsp;&nbsp;&nbsp;"
+                +"<a href='javascript:void(0)' onclick='showData(\""+rid+"\",-1);return false;'>修改</a>&nbsp;&nbsp;&nbsp;&nbsp;"
+                +"<a href='javascript:void(0)' onclick='deleteData(\""+rid+"\");return false;'>删除</a>&nbsp;&nbsp;&nbsp;&nbsp;";
+        }else if(colId == "IS_LATN"){
+        	return data[cid] == "0"?"不区分":"区分";
+        }else if(colId == "IS_ENABLE"){
+        	return data[cid] == "0"?"否":"是";
+        }
+        return data[cid];
+    });
+}
+
+
+//查询数据
+function queryData(dt,params){
+    var termVals=TermReqFactory.getTermReq(1).getKeyValue();
+    dhx.showProgress("请求数据中");
+    RollbackAction.queryRollbackList(termVals,{posStart:params.page.rowStart,count:params.page.pageSize},function(data){
+        dhx.closeProgress();
+        var total = 0;
+        if(data && data[0])
+            total = data[0]["TOTAL_COUNT_"];
+        dataTable.bindData(data,total); //查询出数据后，必须显示调用绑定数据的方法
+    });
+}
+
+/**
+  *操作数据源管理
+  *@param rid 用户ID
+  *@param flag 1新增，0查看，-1修改
+ **/
+function showData(rid,flag){
+    var title = "";
+    var rollbackId =  dataTable.getUserData(rid,"ROLLBACK_ID");
+    var tableName =  dataTable.getUserData(rid,"TABLE_NAME")?dataTable.getUserData(rid,"TABLE_NAME"):"";
+    var hbaseTableName = dataTable.getUserData(rid,"HBASE_TABLE_NAME")?dataTable.getUserData(rid,"HBASE_TABLE_NAME"):"";
+    var rowkeyField = dataTable.getUserData(rid,"ROWKEY_FIELD")?dataTable.getUserData(rid,"ROWKEY_FIELD"):"";
+    var rowkeyFieldAdjust = dataTable.getUserData(rid,"ROWKEY_FIELD_ADJUST")?dataTable.getUserData(rid,"ROWKEY_FIELD_ADJUST"):"";
+    var isLatn = dataTable.getUserData(rid,"IS_LATN");
+    var isEnable = dataTable.getUserData(rid,"IS_ENABLE");
+    if(flag==1){
+        title = "新增回退和调账的rowkey组合规则";
+        document.getElementById("rollbackId").value = "";
+        document.getElementById("tableName").value = "";
+        document.getElementById("hbaseTableName").value = "" ;
+        document.getElementById("rowkeyField").value = "" ;
+        document.getElementById("rowkeyFieldAdjust").value = "" ;
+        document.getElementById("isLatn").value = 0 ;
+        document.getElementById("isEnable").value = 1 ;
+        $("tableName").readOnly="";
+        $("hbaseTableName").readOnly="";
+        $("rowkeyField").readOnly="";
+        $("rowkeyFieldAdjust").readOnly="";
+        $("isLatn").disabled="";
+        $("isEnable").disabled="";
+        document.getElementById("saveBtn").style.visibility = "visible";
+        $("calBtn").value="取消";
+    }
+    if(flag==0){
+        title = "查看回退和调账的rowkey组合规则";
+        document.getElementById("rollbackId").value = rollbackId;
+        document.getElementById("tableName").value = tableName;
+        document.getElementById("hbaseTableName").value = hbaseTableName ;
+        document.getElementById("rowkeyField").value = rowkeyField;
+        document.getElementById("rowkeyFieldAdjust").value = rowkeyFieldAdjust ;
+        document.getElementById("isLatn").value = isLatn ;
+        document.getElementById("isEnable").value = isEnable ;
+        $("tableName").readOnly="readOnly";
+        $("hbaseTableName").readOnly="readOnly";
+        $("rowkeyField").readOnly="readOnly";
+        $("rowkeyFieldAdjust").readOnly="readOnly";
+        $("isLatn").disabled="disabled";
+        $("isEnable").disabled="disabled";
+        document.getElementById("saveBtn").style.visibility = "hidden";
+        $("calBtn").value="关闭";
+    }
+    if(flag==-1){
+        title = "修改回退和调账的rowkey组合规则";
+        document.getElementById("rollbackId").value = rollbackId;
+        document.getElementById("tableName").value = tableName;
+        document.getElementById("hbaseTableName").value = hbaseTableName ;
+        document.getElementById("rowkeyField").value = rowkeyField;
+        document.getElementById("rowkeyFieldAdjust").value = rowkeyFieldAdjust ;
+        document.getElementById("isLatn").value = isLatn ;
+        document.getElementById("isEnable").value = isEnable ;
+        $("tableName").readOnly="";
+        $("hbaseTableName").readOnly="";
+        $("rowkeyField").readOnly="";
+        $("rowkeyFieldAdjust").readOnly="";
+        $("isLatn").disabled="";
+        $("isEnable").disabled="";
+        document.getElementById("saveBtn").style.visibility = "visible";
+        $("calBtn").value="取消";
+    }
+    if(!maintainWin){
+        maintainWin = DHTMLXFactory.createWindow("1","maintainWin",0,0,450,350);
+        maintainWin.stick();
+        maintainWin.denyResize();
+        maintainWin.denyPark();
+        maintainWin.button("minmax1").hide();
+        maintainWin.button("park").hide();
+        maintainWin.button("stick").hide();
+        maintainWin.button("sticked").hide();
+        maintainWin.center();
+
+        var dataFormDIV = document.getElementById("dataFormDIV");
+        maintainWin.attachObject(dataFormDIV);
+        var saveBtn = document.getElementById("saveBtn");
+        var calBtn = document.getElementById("calBtn");
+        attachObjEvent(saveBtn,"onclick",saveRollback);
+        attachObjEvent(calBtn,"onclick",function(){maintainWin.close();});
+
+        maintainWin.attachEvent("onClose",function(){
+            maintainWin.setModal(false);
+            this.hide();
+            return false;
+        });
+       
+        dhtmlxValidation.addValidation(dataFormDIV, [
+            {target:"tableName",rule:"MaxLength[100],NotEmpty"},
+            {target:"hbaseTableName",rule:"MaxLength[4000],NotEmpty"},
+            {target:"rowkeyField",rule:"MaxLength[4000],NotEmpty"},
+            {target:"rowkeyFieldAdjust",rule:"MaxLength[4000]"}
+        ],"true");
+    }
+    dhtmlxValidation.validate("dataFormDIV");
+    maintainWin.setText(title);
+    maintainWin.setModal(true);
+    maintainWin.show();
+    maintainWin.center();
+}
+
+//保存方法
+function saveRollback(){
+	 if(!(dhtmlxValidation.validate("dataFormDIV")))return;
+     var data = Tools.getFormValues("dataForm");
+     dhx.showProgress("保存数据中");
+     RollbackAction.savedRollback(data,function(ret){
+         dhx.closeProgress();
+         maintainWin.close();
+         if(ret=="success"){
+             dhx.alert("保存成功!");
+             dataTable.refreshData();
+         }else if(ret=="failed"){
+             dhx.alert("保存出错!");
+         }
+     });
+}
+
+//删除文件规则
+function deleteData(rid){
+	var id = dataTable.getUserData(rid,"ROLLBACK_ID");
+	dhx.confirm("是否确认要删除该条数据？",function(r){
+        if(r){
+        	dhx.showProgress("请求数据中");
+            RollbackAction.deleteRollback(id,function(ret){
+            dhx.closeProgress();
+                if(ret.flag=="false"){
+                    dhx.alert("删除失败！");
+                }else if(ret.flag=="success"){
+                	dhx.alert("删除成功！");
+                    dataTable.refreshData();
+                }else if(ret.flag=="error"){
+                    dhx.alert("删除报错！");
+                }
+            });
+        }
+    });
+}
+
+dhx.ready(pageInit);

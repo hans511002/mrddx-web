@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 2.0//EN" "http://www.getahead.ltd.uk/dwr/dwr20.dtd">
+<dwr>
+	<init>
+        <creator id="db" class="com.ery.base.support.dwr.DBCreator"/>
+        <converter id="nestedMap" class="com.ery.base.support.dwr.NestedMapConverter"/>
+        <converter id="nestedCollection" class="com.ery.base.support.dwr.NestedCollectionConverter"/>
+        <converter id="bigDecimal" class="com.ery.base.support.dwr.BigDecimalConverter"/>
+    </init>
+    <allow>
+        <!--容器类转换器-->
+        <convert converter="nestedCollection" match="java.util.Collection"/>
+        <convert converter="nestedMap" match="java.util.Map"/>
+        <!-- Job任务管理 -->
+        <create creator="db" javascript="JobAction">
+            <param name="class" value="com.ery.meta.module.bigdata.mrddx.config.JobAction"/>
+        </create>
+        <!-- 数据源管理 -->
+        <create creator="db" javascript="BigDataSourceAction">
+            <param name="class" value="com.ery.meta.module.bigdata.mrddx.config.BigDataSourceAction"/>
+        </create>
+        <!-- 日志管理 -->
+        <create creator="db" javascript="JobLogAction">
+            <param name="class" value="com.ery.meta.module.bigdata.mrddx.log.JobLogAction"/>
+        </create> 
+        
+        <!-- 查看配额 -->
+        <create creator="db" javascript="CheckQuotaAction">
+            <param name="class" value="com.ery.meta.module.bigdata.mrddx.log.CheckQuotaAction"/>
+        </create> 
+        
+         <!-- 查询统计分析 -->
+        <create creator="db" javascript="AnalysisAction">
+            <param name="class" value="com.ery.meta.module.analysis.AnalysisAction"/>
+        </create>
+         <!-- 首页查询 
+        <create creator="db" javascript="HomePageAction">
+            <param name="class" value="com.ery.meta.module.homePage.HomePageAction"/>
+        </create>            -->
+    </allow>
+</dwr>

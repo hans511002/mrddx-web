@@ -6,21 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.jdbc.IParamsSetter;
+import com.ery.base.support.utils.Convert;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 import com.ery.meta.module.mag.user.UserConstant;
 import com.ery.meta.module.mag.user.UserRolePO;
 
-import com.ery.base.support.jdbc.IParamsSetter;
-import com.ery.base.support.utils.Convert;
-
 /**
-
- * 该类是角色相关操作DAO类，用于连接数据库操作，供RoleAction调用 包括但不仅包括角色的增、删、改、查、关联菜单、关联用户等功能
- * 其中还有角色-菜单关系表的维护方法
  * 
-
+ * 该类是角色相关操作DAO类，用于连接数据库操作，供RoleAction调用 包括但不仅包括角色的增、删、改、查、关联菜单、关联用户等功能 其中还有角色-菜单关系表的维护方法
+ * 
+ * 
  * @date 2011-9-26 ----------------------
  * @modify 张伟
  * @date 2011-10-2 添加分页设置
@@ -31,8 +29,10 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 查询符合条件的角色信息
 	 * 
-	 * @param queryData 查询条件
-	 * @param page 分页参数。
+	 * @param queryData
+	 *            查询条件
+	 * @param page
+	 *            分页参数。
 	 * @return 角色列表
 	 */
 	public List<Map<String, Object>> queryRoles(Map<?, ?> queryData, Page page) {
@@ -53,7 +53,7 @@ public class RoleDAO extends MetaBaseDAO {
 		pageSql = pageSql + " ORDER by ROLE_ID ";
 		// 分页包装
 		if (page != null) {
-			pageSql = SqlUtils.wrapPagingSql(pageSql, page);
+			pageSql = SqlUtils.wrapPagingSql(getDataAccess(), pageSql, page);
 		}
 		return getDataAccess().queryForList(pageSql, params.toArray());
 	}
@@ -61,7 +61,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 添加角色信息
 	 * 
-	 * @param data 表单数据
+	 * @param data
+	 *            表单数据
 	 * @return 操作结果
 	 * @throws Exception
 	 */
@@ -82,7 +83,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 修改角色信息
 	 * 
-	 * @param data 表单信息
+	 * @param data
+	 *            表单信息
 	 * @return 操作结果
 	 * @throws Exception
 	 */
@@ -111,7 +113,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据role_id取得角色信息
 	 * 
-	 * @param roleId 角色ID
+	 * @param roleId
+	 *            角色ID
 	 * @return 角色信息
 	 */
 	public Map<String, Object> queryRoleById(Integer roleId) {
@@ -123,7 +126,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据role_name取得角色信息
 	 * 
-	 * @param rolename 角色名称
+	 * @param rolename
+	 *            角色名称
 	 * @return 角色信息
 	 */
 	public List<Map<String, Object>> queryUserByRoleName(String roleName) {
@@ -139,35 +143,33 @@ public class RoleDAO extends MetaBaseDAO {
 			wherSql = "";
 		}
 
-		String sql = "select T1.MENU_ID,T1.PARENT_ID,T1.MENU_NAME,T1.MENU_TIP,T1.MENU_URL,T1.PAGE_BUTTON,T1.GROUP_ID,T1.ORDER_ID,T1.IS_SHOW,T1.CREATE_DATE,T1.ICON_URL,T1.TARGET,T1.USER_ATTR,"
-				+ "T1.NAV_STATE,T1.USER_ATTR_LIST,T1.MENU_STATE "
-				+ " from META_MAG_MENU T1,("
-				+ " select b.menu_id,wmsys.wm_concat(b.exclude_button) exclude_buttons"
-				+ " from META_MAG_USER_ROLE A, META_MAG_ROLE_MENU B"
-				+ " where A.USER_ID = "
-				+ userId
-				+ " And a.grant_flag = 1"
-				+ " and b.menu_id in ("
-				+
+		String sql = "select T1.MENU_ID,T1.PARENT_ID,T1.MENU_NAME,T1.MENU_TIP,T1.MENU_URL,T1.PAGE_BUTTON,T1.GROUP_ID,T1.ORDER_ID,T1.IS_SHOW,T1.CREATE_DATE,T1.ICON_URL,T1.TARGET,T1.USER_ATTR," +
+				"T1.NAV_STATE,T1.USER_ATTR_LIST,T1.MENU_STATE " +
+				" from META_MAG_MENU T1,(" +
+				" select b.menu_id,wmsys.wm_concat(b.exclude_button) exclude_buttons" +
+				" from META_MAG_USER_ROLE A, META_MAG_ROLE_MENU B" +
+				" where A.USER_ID = " +
+				userId +
+				" And a.grant_flag = 1" +
+				" and b.menu_id in (" +
 
-				" SELECT distinct MENU_ID"
-				+ "  FROM META_MAG_USER_ROLE A, META_MAG_ROLE_MENU B"
-				+ "  WHERE A.USER_ID = "
-				+ userId
-				+ "   And a.grant_flag = 1"
-				+ "    AND B.ROLE_ID = A.ROLE_ID"
-				+ " minus"
-				+ " select t.menu_id"
-				+ "  from meta_mag_user_menu t"
-				+ " where t.USER_ID = "
-				+ userId
-				+ "   and t.flag = 0)"
-				+
+				" SELECT distinct MENU_ID" +
+				"  FROM META_MAG_USER_ROLE A, META_MAG_ROLE_MENU B" +
+				"  WHERE A.USER_ID = " +
+				userId +
+				"   And a.grant_flag = 1" +
+				"    AND B.ROLE_ID = A.ROLE_ID" +
+				" minus" +
+				" select t.menu_id" +
+				"  from meta_mag_user_menu t" +
+				" where t.USER_ID = " +
+				userId +
+				"   and t.flag = 0)" +
 
-				" and B.ROLE_ID = A.ROLE_ID"
-				+ " and A.ROLE_ID = "
-				+ roleId
-				+ " group by b.menu_id) T2 where T1.Group_Id=1 and T1.Menu_Id=T2.menu_id";
+				" and B.ROLE_ID = A.ROLE_ID" +
+				" and A.ROLE_ID = " +
+				roleId +
+				" group by b.menu_id) T2 where T1.Group_Id=1 and T1.Menu_Id=T2.menu_id";
 		List<Map<String, Object>> data = getDataAccess().queryForList(sql);
 		return data;
 	}
@@ -175,7 +177,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据ROLE_ID删除Role信息
 	 * 
-	 * @param roleIds 角色ID
+	 * @param roleIds
+	 *            角色ID
 	 * @return 执行的数据条数
 	 * @throws Exception
 	 */
@@ -259,9 +262,11 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 批量删除菜单和角色中间表的关系
 	 * 
-
-	 * @param menuId int 菜单的id
-	 * @param roleIds String 角色所有的id的集合
+	 * 
+	 * @param menuId
+	 *            int 菜单的id
+	 * @param roleIds
+	 *            String 角色所有的id的集合
 	 * @return int
 	 * @throws Exception
 	 * */
@@ -300,7 +305,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据角色ID删除角色-用户关联关系信息
 	 * 
-	 * @param roleIds 角色ID
+	 * @param roleIds
+	 *            角色ID
 	 * @return 删除条数
 	 * @throws Exception
 	 */
@@ -326,7 +332,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据角色ID删除角色-菜单关联关系信息
 	 * 
-	 * @param roleIds 角色ID
+	 * @param roleIds
+	 *            角色ID
 	 * @return 删除条数
 	 * @throws Exception
 	 */
@@ -349,7 +356,8 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据角色ID删除META_MAG_ROLE_ORG信息
 	 * 
-	 * @param roleIds 角色ID
+	 * @param roleIds
+	 *            角色ID
 	 * @return 删除条数
 	 * @throws Exception
 	 */
@@ -411,8 +419,10 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据条件查询用户-角色关联关系信息
 	 * 
-	 * @param condition 查询条件
-	 * @param page 分页参数
+	 * @param condition
+	 *            查询条件
+	 * @param page
+	 *            分页参数
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> queryUserRoleByCondition(Map<?, ?> condition, Page page) {
@@ -420,8 +430,8 @@ public class RoleDAO extends MetaBaseDAO {
 		String zoneId = "", zoneSql = "", deptId = "", deptIdSql = "", stationId = "", stationIdSql = "";
 		if (condition != null && condition.get("zoneId") != null) {
 			zoneId = condition.get("zoneId").toString();
-			zoneSql = "((SELECT b.zone_id,level zone_level  FROM META_DIM_ZONE B START WITH B.zone_id in (" + zoneId
-					+ ") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID " + ")) E,";
+			zoneSql = "((SELECT b.zone_id,level zone_level  FROM META_DIM_ZONE B START WITH B.zone_id in (" + zoneId +
+					") CONNECT BY PRIOR B.ZONE_ID = B.ZONE_PAR_ID " + ")) E,";
 		}
 		if (condition != null && condition.get("deptId") != null) {
 			deptId = condition.get("deptId").toString();
@@ -433,11 +443,11 @@ public class RoleDAO extends MetaBaseDAO {
 			stationIdSql = "AND DEPT_ID IN (" + stationId + ")";
 		}
 		StringBuffer sql = new StringBuffer(
-				"SELECT A.USER_ID, A.ROLE_ID, A.GRANT_FLAG, A.MAG_FLAG, B.USER_NAMECN,C.ROLE_NAME,B.USER_EMAIL, "
-						+ "C.ROLE_DESC,zone_level FROM" + zoneSql
-						+ "META_MAG_USER_ROLE A, META_MAG_USER B, META_MAG_ROLE C "
-						+ "WHERE A.USER_ID=B.USER_ID AND A.ROLE_ID=C.ROLE_ID AND B.ZONE_ID = E.ZONE_ID" + stationIdSql
-						+ deptIdSql);
+				"SELECT A.USER_ID, A.ROLE_ID, A.GRANT_FLAG, A.MAG_FLAG, B.USER_NAMECN,C.ROLE_NAME,B.USER_EMAIL, " +
+						"C.ROLE_DESC,zone_level FROM" + zoneSql +
+						"META_MAG_USER_ROLE A, META_MAG_USER B, META_MAG_ROLE C " +
+						"WHERE A.USER_ID=B.USER_ID AND A.ROLE_ID=C.ROLE_ID AND B.ZONE_ID = E.ZONE_ID" + stationIdSql +
+						deptIdSql);
 		List<Object> params = new ArrayList<Object>();
 		if (condition != null && condition.containsKey("roleId")) {
 			int roleId = Integer.parseInt(condition.get("roleId").toString());
@@ -453,8 +463,8 @@ public class RoleDAO extends MetaBaseDAO {
 			sql.append("AND USER_NAMECN LIKE ? ESCAPE '/'");
 			params.add(SqlUtils.allLikeBindParam(Convert.toString(condition.get("userName"))));
 		}
-		if (condition != null && condition.get("userState") != null
-				&& !condition.get("userState").toString().equals("-1")) {// 状态
+		if (condition != null && condition.get("userState") != null &&
+				!condition.get("userState").toString().equals("-1")) {// 状态
 			sql.append("AND STATE=? ");
 			params.add(Integer.parseInt(String.valueOf(condition.get("userState"))));
 		}
@@ -479,20 +489,23 @@ public class RoleDAO extends MetaBaseDAO {
 		// }
 		sql.append(" ORDER BY zone_level, A.ROLE_ID");
 		return getDataAccess().queryForList(
-				page == null ? sql.toString() : SqlUtils.wrapPagingSql(sql.toString(), page), params.toArray());
+				page == null ? sql.toString() : SqlUtils.wrapPagingSql(getDataAccess(), sql.toString(), page),
+				params.toArray());
 	}
 
 	/**
 	 * 用户关联角色功能中，查询备选角色，不包含已存在的角色信息
 	 * 
-	 * @param queryData 查询条件
-	 * @param page 分页信息
+	 * @param queryData
+	 *            查询条件
+	 * @param page
+	 *            分页信息
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> queryRolesNotInUserRole(Map<?, ?> queryData, Page page) {
 		int userId = Integer.parseInt(queryData.get("userId").toString());
-		String wheres = " AND ROLE_ID NOT IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId
-				+ ") ORDER BY ROLE_ID ";
+		String wheres = " AND ROLE_ID NOT IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId +
+				") ORDER BY ROLE_ID ";
 
 		StringBuffer sql = new StringBuffer("SELECT ROLE_ID, ROLE_NAME, ROLE_DESC, ROLE_STATE, CREATE_DATE "
 				+ "FROM META_MAG_ROLE WHERE 1=1 ");
@@ -513,7 +526,7 @@ public class RoleDAO extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			pageSql = SqlUtils.wrapPagingSql(pageSql, page);
+			pageSql = SqlUtils.wrapPagingSql(getDataAccess(), pageSql, page);
 		}
 		return getDataAccess().queryForList(pageSql, params.toArray());
 	}
@@ -521,39 +534,43 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 更新用户-角色关联关系信息
 	 * 
-	 * @param userRolePO 用户-角色关系对象
+	 * @param userRolePO
+	 *            用户-角色关系对象
 	 * @return 操作成功与否
 	 */
 	public boolean updateUserRole(UserRolePO userRolePO) throws Exception {
-		String updateSql = "update META_MAG_USER_ROLE SET GRANT_FLAG=" + userRolePO.getGrantFlag() + ",MAG_FLAG="
-				+ userRolePO.getMagFlag() + " " + "WHERE USER_ID=" + userRolePO.getUserId() + " AND ROLE_ID="
-				+ userRolePO.getRoleId();
+		String updateSql = "update META_MAG_USER_ROLE SET GRANT_FLAG=" + userRolePO.getGrantFlag() + ",MAG_FLAG=" +
+				userRolePO.getMagFlag() + " " + "WHERE USER_ID=" + userRolePO.getUserId() + " AND ROLE_ID=" +
+				userRolePO.getRoleId();
 		return getDataAccess().execUpdate(updateSql) > -1;
 	}
 
 	/**
 	 * 根据角色取得角色-菜单对应关系信息
 	 * 
-	 * @param roleId 角色ID
+	 * @param roleId
+	 *            角色ID
 	 * @return 查询结果
 	 */
 	public List<Map<String, Object>> queryRoleMenuByRoleId(int roleId) {
-		String sql = "SELECT ROLE_ID, MENU_ID, EXCLUDE_BUTTON, MAP_TYPE FROM META_MAG_ROLE_MENU WHERE ROLE_ID="
-				+ roleId;
+		String sql = "SELECT ROLE_ID, MENU_ID, EXCLUDE_BUTTON, MAP_TYPE FROM META_MAG_ROLE_MENU WHERE ROLE_ID=" +
+				roleId;
 		return getDataAccess().queryForList(sql);
 	}
 
 	/**
 	 * 根据岗位ID，部门ID取对应的角色数组
 	 * 
-	 * @param stationId 岗位ID
-	 * @param deptId 部门ID
+	 * @param stationId
+	 *            岗位ID
+	 * @param deptId
+	 *            部门ID
 	 * @return
 	 * @throws Exception
 	 */
 	public int[] queryRoleIdsByStationIdDeptId(int stationId, int deptId) throws Exception {
-		String sql = "SELECT ROLE_ID FROM META_MAG_ROLE_ORG WHERE STATION_ID = " + stationId + " AND DEPT_ID=" + deptId
-				+ " ";
+		String sql = "SELECT ROLE_ID FROM META_MAG_ROLE_ORG WHERE STATION_ID = " + stationId + " AND DEPT_ID=" +
+				deptId + " ";
 		String[] stringValues = getDataAccess().queryForPrimitiveArray(sql, String.class);
 		int[] intValues = new int[stringValues.length];
 		for (int i = 0; i < intValues.length; i++) {
@@ -565,29 +582,33 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 根据角色ID，岗位、地域、部门ID删除对应的用户-角色关联关系 角色管理的-对地域机构授权-对选中范围取消
 	 * 
-	 * @param roleId 角色ID
-	 * @param stationId 岗位ID
-	 * @param zoneId 地域ID
-	 * @param deptId 部门ID
+	 * @param roleId
+	 *            角色ID
+	 * @param stationId
+	 *            岗位ID
+	 * @param zoneId
+	 *            地域ID
+	 * @param deptId
+	 *            部门ID
 	 * @return 删除的条数
 	 * @throws Exception
 	 */
 	public int deleteUserRoleByRoleIdDim(int roleId, String stationIds, String zoneIds, String deptIds)
 			throws Exception {
-		String sql = "DELETE FROM META_MAG_USER_ROLE A WHERE A.ROLE_ID=" + roleId + " AND"
-				+ " A.USER_ID IN (SELECT B.USER_ID FROM META_MAG_USER B WHERE B.USER_ID<>" + UserConstant.ADMIN_USERID
-				+ " ";
+		String sql = "DELETE FROM META_MAG_USER_ROLE A WHERE A.ROLE_ID=" + roleId + " AND" +
+				" A.USER_ID IN (SELECT B.USER_ID FROM META_MAG_USER B WHERE B.USER_ID<>" + UserConstant.ADMIN_USERID +
+				" ";
 		if (!stationIds.equals("")) {
-			sql = sql + " AND B.STATION_ID IN (SELECT STATION_ID FROM META_DIM_USER_STATION START WITH STATION_ID in("
-					+ stationIds + ") CONNECT BY PRIOR STATION_ID=STATION_PAR_ID) ";
+			sql = sql + " AND B.STATION_ID IN (SELECT STATION_ID FROM META_DIM_USER_STATION START WITH STATION_ID in(" +
+					stationIds + ") CONNECT BY PRIOR STATION_ID=STATION_PAR_ID) ";
 		}
 		if (!zoneIds.equals("")) {
-			sql = sql + " AND B.ZONE_ID IN (SELECT ZONE_ID FROM META_DIM_ZONE START WITH ZONE_ID in(" + zoneIds
-					+ ") CONNECT BY PRIOR ZONE_ID=ZONE_PAR_ID) ";
+			sql = sql + " AND B.ZONE_ID IN (SELECT ZONE_ID FROM META_DIM_ZONE START WITH ZONE_ID in(" + zoneIds +
+					") CONNECT BY PRIOR ZONE_ID=ZONE_PAR_ID) ";
 		}
 		if (!deptIds.equals("")) {
-			sql = sql + " AND B.DEPT_ID IN (SELECT DEPT_ID FROM META_DIM_USER_DEPT START WITH DEPT_ID in(" + deptIds
-					+ ") CONNECT BY PRIOR DEPT_ID=DEPT_PAR_ID)";
+			sql = sql + " AND B.DEPT_ID IN (SELECT DEPT_ID FROM META_DIM_USER_DEPT START WITH DEPT_ID in(" + deptIds +
+					") CONNECT BY PRIOR DEPT_ID=DEPT_PAR_ID)";
 		}
 		sql = sql + ")";
 		return getDataAccess().execUpdate(sql);
@@ -596,7 +617,7 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 新增角色与部门和岗位的关联关系。
 	 * 
-
+	 * 
 	 * @param roleId
 	 * @param data
 	 * @return
@@ -620,16 +641,16 @@ public class RoleDAO extends MetaBaseDAO {
 	/**
 	 * 查询角色关联的部门和岗位关系
 	 * 
-
+	 * 
 	 * @param roleId
 	 * @return
 	 */
 	public List<Map<String, Object>> queryRefDeptStation(int roleId) {
-		String sql = "SELECT T.ROLE_ID,T.STATION_ID,T.DEPT_ID,DEPT.DEPT_NAME, "
-				+ "STATION.STATION_NAME FROM META_MAG_ROLE_ORG T "
-				+ "LEFT JOIN META_DIM_USER_DEPT DEPT ON T.DEPT_ID=DEPT.DEPT_CODE "
-				+ "LEFT JOIN META_DIM_USER_STATION STATION ON T.STATION_ID=STATION.STATION_CODE " + "WHERE T.ROLE_ID="
-				+ roleId;
+		String sql = "SELECT T.ROLE_ID,T.STATION_ID,T.DEPT_ID,DEPT.DEPT_NAME, " +
+				"STATION.STATION_NAME FROM META_MAG_ROLE_ORG T " +
+				"LEFT JOIN META_DIM_USER_DEPT DEPT ON T.DEPT_ID=DEPT.DEPT_CODE " +
+				"LEFT JOIN META_DIM_USER_STATION STATION ON T.STATION_ID=STATION.STATION_CODE " + "WHERE T.ROLE_ID=" +
+				roleId;
 		return getDataAccess().queryForList(sql);
 	}
 
@@ -640,10 +661,10 @@ public class RoleDAO extends MetaBaseDAO {
 	 * @return
 	 */
 	public String queryDeptNamesStationNamesByRoleId(int roleId) {
-		String sql = "SELECT B.DEPT_NAME ||'--'|| C.STATION_NAME FROM "
-				+ "META_MAG_ROLE_ORG A LEFT JOIN META_DIM_USER_DEPT B "
-				+ "ON A.DEPT_ID=B.DEPT_CODE LEFT JOIN META_DIM_USER_STATION C "
-				+ "ON A.STATION_ID=C.STATION_CODE WHERE A.ROLE_ID=" + roleId;
+		String sql = "SELECT B.DEPT_NAME ||'--'|| C.STATION_NAME FROM " +
+				"META_MAG_ROLE_ORG A LEFT JOIN META_DIM_USER_DEPT B " +
+				"ON A.DEPT_ID=B.DEPT_CODE LEFT JOIN META_DIM_USER_STATION C " +
+				"ON A.STATION_ID=C.STATION_CODE WHERE A.ROLE_ID=" + roleId;
 		String names[] = getDataAccess().queryForPrimitiveArray(sql, String.class);
 		String rtnValue = "";
 		for (int i = 0; i < names.length; i++) {
@@ -664,8 +685,8 @@ public class RoleDAO extends MetaBaseDAO {
 	 */
 	public List<Map<String, Object>> queryRoleByName(Map<String, Object> userData, Page page) {
 		int userId = Integer.parseInt(userData.get("userId").toString());
-		String wheres = " AND ROLE_ID NOT IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId
-				+ ") ORDER BY ROLE_ID ";
+		String wheres = " AND ROLE_ID NOT IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId +
+				") ORDER BY ROLE_ID ";
 
 		StringBuffer sql = new StringBuffer("SELECT ROLE_ID, ROLE_NAME, ROLE_DESC, ROLE_STATE, CREATE_DATE "
 				+ "FROM META_MAG_ROLE WHERE 1=1 ");
@@ -695,7 +716,7 @@ public class RoleDAO extends MetaBaseDAO {
 
 		// 分页包装
 		if (page != null) {
-			pageSql = SqlUtils.wrapPagingSql(pageSql, page);
+			pageSql = SqlUtils.wrapPagingSql(getDataAccess(), pageSql, page);
 		}
 		return getDataAccess().queryForList(pageSql, params.toArray());
 	}
@@ -708,8 +729,8 @@ public class RoleDAO extends MetaBaseDAO {
 	 * @return
 	 */
 	public List<Map<String, Object>> queryRoleByNameAndId(String roleName, int roleId) {
-		String sql = "SELECT ROLE_ID, ROLE_NAME, ROLE_DESC, ROLE_STATE, " + "CREATE_DATE FROM META_MAG_ROLE "
-				+ "WHERE ROLE_NAME = ?" + " AND ROLE_ID <> " + roleId;
+		String sql = "SELECT ROLE_ID, ROLE_NAME, ROLE_DESC, ROLE_STATE, " + "CREATE_DATE FROM META_MAG_ROLE " +
+				"WHERE ROLE_NAME = ?" + " AND ROLE_ID <> " + roleId;
 		return getDataAccess().queryForList(sql, roleName);
 	}
 
@@ -736,8 +757,8 @@ public class RoleDAO extends MetaBaseDAO {
 		String wheres = "";
 
 		if (!isAdmin) {
-			wheres = " AND ROLE_ID  IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId
-					+ " AND  MAG_FLAG = 1) ORDER BY ROLE_ID ";
+			wheres = " AND ROLE_ID  IN (SELECT ROLE_ID FROM META_MAG_USER_ROLE WHERE USER_ID=" + userId +
+					" AND  MAG_FLAG = 1) ORDER BY ROLE_ID ";
 		}
 
 		StringBuffer sql = new StringBuffer("SELECT ROLE_ID, ROLE_NAME, ROLE_DESC, ROLE_STATE, CREATE_DATE "
@@ -759,7 +780,7 @@ public class RoleDAO extends MetaBaseDAO {
 		//
 		// //分页包装
 		// if(page!=null){
-		// pageSql= SqlUtils.wrapPagingSql(pageSql, page);
+		// pageSql= SqlUtils.wrapPagingSql(getDataAccess(),pageSql, page);
 		// }
 		return getDataAccess().queryForList(pageSql, params.toArray());
 	}

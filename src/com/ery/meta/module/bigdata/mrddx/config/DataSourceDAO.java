@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 /**
-
  * 
-
+ * 
+ * 
  * @description
  * @date 2013-04-22
  */
@@ -91,7 +90,7 @@ public class DataSourceDAO extends MetaBaseDAO {
 			sql += " ORDER BY A.DATA_SOURCE_ID ";
 		}
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;

@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
-
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
-
 
 public class FileRuleDao extends MetaBaseDAO {
 
@@ -37,7 +34,7 @@ public class FileRuleDao extends MetaBaseDAO {
 		sql += "ORDER BY T.RULE_ID DESC";
 		// 分页包装
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		return getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
 	}
@@ -90,7 +87,8 @@ public class FileRuleDao extends MetaBaseDAO {
 	/**
 	 * 删除文件规则
 	 * 
-	 * @param id 规则ID
+	 * @param id
+	 *            规则ID
 	 */
 	public void deleteFileRule(String id) {
 		String sql = "DELETE FROM TB_FILE_HB_RULE WHERE RULE_ID=?";

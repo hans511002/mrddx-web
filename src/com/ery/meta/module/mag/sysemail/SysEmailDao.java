@@ -6,17 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.jdbc.BinaryStream;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.BlobRowListMapper;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 
-import com.ery.base.support.jdbc.BinaryStream;
-import com.ery.base.support.utils.MapUtils;
-
 /**
  * 
-
+ * 
  * @description 系统订阅DAO
  * @date 2012-11-19
  */
@@ -44,7 +43,7 @@ public class SysEmailDao extends MetaBaseDAO {
 
 		sql = sql + " ORDER BY CFG_ID DESC";
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> rs = new ArrayList<Map<String, Object>>();
 		rs = getDataAccess().queryByRowMapper(sql, new BlobRowListMapper("GBK"), params.toArray());
@@ -59,12 +58,12 @@ public class SysEmailDao extends MetaBaseDAO {
 				String USERNAMERS = "";
 				if (user_type == 1) {
 					USERNAMERS = getDataAccess().queryForString(
-							"select USER_NAMECN from meta_mag_user where USER_ID="
-									+ Integer.parseInt(map.get("TARGET_USER").toString()));
+							"select USER_NAMECN from meta_mag_user where USER_ID=" +
+									Integer.parseInt(map.get("TARGET_USER").toString()));
 				} else {
 					USERNAMERS = getDataAccess().queryForString(
-							"select ROLE_NAME from meta_mag_role where ROLE_ID="
-									+ Integer.parseInt(map.get("TARGET_USER").toString()));
+							"select ROLE_NAME from meta_mag_role where ROLE_ID=" +
+									Integer.parseInt(map.get("TARGET_USER").toString()));
 				}
 				map.put("USERNAMERS", USERNAMERS);
 			}
@@ -128,7 +127,8 @@ public class SysEmailDao extends MetaBaseDAO {
 
 	/**
 	 * @description 修改系统订阅
-	 * @param data,map
+	 * @param data
+	 *            ,map
 	 * @throws UnsupportedEncodingException
 	 */
 	public boolean updateEmail(Map<String, Object> data, String userId) throws UnsupportedEncodingException {
@@ -168,12 +168,12 @@ public class SysEmailDao extends MetaBaseDAO {
 					break;
 				} else if (i == (temp.length - 1)) { // 当循环到查询字段列表的最后一个字段仍然不能匹配到宏变量
 					if (TargetuserType == 1) {
-						String sqlforUserId = " SELECT T.USER_ID FROM META_MAG_USER T where T.USER_NAMECN = '" + userId
-								+ "'";
+						String sqlforUserId = " SELECT T.USER_ID FROM META_MAG_USER T where T.USER_NAMECN = '" +
+								userId + "'";
 						userId = getDataAccess().queryForString(sqlforUserId);
 					} else {
-						String sqlforRoleId = " SELECT T.ROLE_ID FROM META_MAG_ROLE T where T.ROLE_NAME = '" + userId
-								+ "'";
+						String sqlforRoleId = " SELECT T.ROLE_ID FROM META_MAG_ROLE T where T.ROLE_NAME = '" + userId +
+								"'";
 						userId = getDataAccess().queryForString(sqlforRoleId);
 					}
 					if (userId == null) {
@@ -253,12 +253,12 @@ public class SysEmailDao extends MetaBaseDAO {
 					break;
 				} else if (i == (temp.length - 1)) { // 当循环到查询字段列表的最后一个字段仍然不能匹配到宏变量
 					if (TargetuserType == 1) {
-						String sqlforUserId = " SELECT T.USER_ID FROM META_MAG_USER T WHERE T.USER_NAMECN = '" + userId
-								+ "'";
+						String sqlforUserId = " SELECT T.USER_ID FROM META_MAG_USER T WHERE T.USER_NAMECN = '" +
+								userId + "'";
 						userId = getDataAccess().queryForString(sqlforUserId);
 					} else {
-						String sqlforRoleId = " SELECT T.ROLE_ID FROM META_MAG_ROLE T WHERE T.ROLE_NAME = '" + userId
-								+ "'";
+						String sqlforRoleId = " SELECT T.ROLE_ID FROM META_MAG_ROLE T WHERE T.ROLE_NAME = '" + userId +
+								"'";
 						userId = getDataAccess().queryForString(sqlforRoleId);
 					}
 					if (userId == null) {

@@ -8,13 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.MetaBaseDAO;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
-
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
-
 
 public class UserTypeDAO extends MetaBaseDAO {
 
@@ -44,7 +42,7 @@ public class UserTypeDAO extends MetaBaseDAO {
 		}
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
 		return list;
@@ -119,7 +117,7 @@ public class UserTypeDAO extends MetaBaseDAO {
 		}
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
@@ -128,8 +126,8 @@ public class UserTypeDAO extends MetaBaseDAO {
 
 	public List<Map<String, Object>> queryTypeByUser(Map<String, Object> data) {
 		String userid = MapUtils.getString(data, "USER_ID");
-		String sql = "select mt.* from meta_mr_type mt inner join META_MR_USERTYPE mu on mt.type_id = mu.type_id where mu.user_id = '"
-				+ userid + "'";
+		String sql = "select mt.* from meta_mr_type mt inner join META_MR_USERTYPE mu on mt.type_id = mu.type_id where mu.user_id = '" +
+				userid + "'";
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql);
 		return list;
 	}
@@ -163,8 +161,8 @@ public class UserTypeDAO extends MetaBaseDAO {
 			sql += " and t.user_namecn like '%" + data.get("S_USER_NAME") + "%'";
 		}
 		if (data != null && data.containsKey("SAME_USER_ID")) {
-			sql += " and t.user_id in (select distinct user_id from META_MR_USERTYPE where type_id in(select  type_id  from META_MR_USERTYPE where user_id = "
-					+ data.get("SAME_USER_ID") + "))";
+			sql += " and t.user_id in (select distinct user_id from META_MR_USERTYPE where type_id in(select  type_id  from META_MR_USERTYPE where user_id = " +
+					data.get("SAME_USER_ID") + "))";
 		}
 		if (data != null && data.containsKey("flag") && data.get("flag").toString().equals("1")) {
 			sql += " and t.user_id in (select distinct user_id from META_MR_USER_ADDACTION) order by t.user_id";
@@ -174,7 +172,7 @@ public class UserTypeDAO extends MetaBaseDAO {
 		List<Object> param = new ArrayList<Object>();
 
 		if (page != null) {
-			sql = SqlUtils.wrapPagingSql(sql, page);
+			sql = SqlUtils.wrapPagingSql(getDataAccess(), sql, page);
 		}
 
 		List<Map<String, Object>> list = getDataAccess().queryForList(sql, param.toArray());
@@ -186,8 +184,8 @@ public class UserTypeDAO extends MetaBaseDAO {
 		String d = F.format(new Date());
 		Map<String, Object> map = new HashMap<String, Object>();
 		boolean bl = true;
-		String sql = "insert into META_MR_USER_ADDACTION_BAK "
-				+ "select t.*,sysdate from META_MR_USER_ADDACTION t where USER_ID = " + data.get("userId");
+		String sql = "insert into META_MR_USER_ADDACTION_BAK " +
+				"select t.*,sysdate from META_MR_USER_ADDACTION t where USER_ID = " + data.get("userId");
 		bl = bl && getDataAccess().execNoQuerySql(sql);
 
 		sql = "delete META_MR_USER_ADDACTION where USER_ID = " + data.get("userId");
@@ -196,8 +194,8 @@ public class UserTypeDAO extends MetaBaseDAO {
 		List<String> actionIds = (List<String>) data.get("actionIds");
 		for (String actionId : actionIds) {
 			if (!actionId.equals("")) {
-				sql = "INSERT INTO META_MR_USER_ADDACTION(USER_ID,ACTION_TYPE,CREATE_USER_ID,CREATE_USER_DATE) VALUES("
-						+ data.get("userId") + "," + actionId + "," + data.get("createUserDate") + ",'" + d + "')";
+				sql = "INSERT INTO META_MR_USER_ADDACTION(USER_ID,ACTION_TYPE,CREATE_USER_ID,CREATE_USER_DATE) VALUES(" +
+						data.get("userId") + "," + actionId + "," + data.get("createUserDate") + ",'" + d + "')";
 				bl = bl && getDataAccess().execNoQuerySql(sql);
 			}
 		}

@@ -12,12 +12,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ery.base.support.jdbc.DataAccess;
 import com.ery.base.support.log4j.LogUtils;
 
 /**
-
  * 
-
+ * 
+ * 
  * @description 作用:SQL工具类，提供常用的SQL工具访问方法 <br>
  * @date 2011-09-16
  */
@@ -29,15 +30,16 @@ public class SqlUtils {
 			"not\\s*in", "in", "like", "not\\s*like", "is\\s*null", "is\\s*not\\s*null,in,not\\s*in" };
 
 	/**
-	 * sql格式化，将Sql中以#key格式的键值格式化，并从object中获取指定键值的索引，放置合适的索引位。 如:"INSERT
-	 * INTO　USERS(ID,NAME,SEX) VALUES(#id,#name,#sex)",那么调用方法有两个作用，首先
-	 * 将其中格式为#key形式的参数转为JDBC正常格式的参数占位符？，其次根据键值在object中寻找，如果是javabean
+	 * sql格式化，将Sql中以#key格式的键值格式化，并从object中获取指定键值的索引，放置合适的索引位。 如:"INSERT INTO　USERS(ID,NAME,SEX)
+	 * VALUES(#id,#name,#sex)",那么调用方法有两个作用，首先 将其中格式为#key形式的参数转为JDBC正常格式的参数占位符？，其次根据键值在object中寻找，如果是javabean
 	 * 根据反射获取其值，如果是map直接get取值。
 	 * 
-	 * @param sql sql 包含#key格式的键值
-	 * @param params map中包含的参数。
-	 * @param nullEnable 如果params未包含指定键值的参数，是否设置为null，true表示设置为null，false
-	 *            表示不设置值，SQL中对应索引位将取消。调用此函数时注意索引位取消引起的语法问题
+	 * @param sql
+	 *            sql 包含#key格式的键值
+	 * @param params
+	 *            map中包含的参数。
+	 * @param nullEnable
+	 *            如果params未包含指定键值的参数，是否设置为null，true表示设置为null，false 表示不设置值，SQL中对应索引位将取消。调用此函数时注意索引位取消引起的语法问题
 	 *            方法已尽量努力做到由于键值取消而引发的SQL语法问题，请调用者自己检查注意
 	 * @return 长度为2的数组，object[0]是将#key格式化为？的sql，object[2]是从map中获取到的参数。
 	 */
@@ -91,8 +93,7 @@ public class SqlUtils {
 			// 如果不允许null处理且有未找到的键值
 			if (sqlParams.get(sqlParams.size() - 1) == null && !nullEnable && !isfindParam) {
 				/*
-				 * 如果有未找到的键值，如果设置nullEnable=true，进行条件表达式匹配，取消与此键值
-				 * 有关的表达式，本方法已尽量努力做到由于键值取消而引发的SQL语法问题，请调用者自己 检查注意
+				 * 如果有未找到的键值，如果设置nullEnable=true，进行条件表达式匹配，取消与此键值 有关的表达式，本方法已尽量努力做到由于键值取消而引发的SQL语法问题，请调用者自己 检查注意
 				 */
 				keys.append("#" + key + "|");
 				sqlParams.remove(sqlParams.size() - 1);
@@ -108,8 +109,8 @@ public class SqlUtils {
 			// 一次性完全替换没有找到指定关键字的子查询
 			String key = keys.substring(0, keys.length() - 1);
 			int i = 0;
-			p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*\\w*\\s*(?:" + sqloneStr + ")?\\s*(?:"
-					+ key + ")(?:[^\\w])(\\s*,)*");
+			p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*\\w*\\s*(?:" + sqloneStr + ")?\\s*(?:" +
+					key + ")(?:[^\\w])(\\s*,)*");
 			while (i++ < 2) {
 				// 关键字在后匹配
 				StringBuffer sb = new StringBuffer();
@@ -130,8 +131,8 @@ public class SqlUtils {
 					sql = sql.replaceAll("\\s*,*\\s*_replace__.+__replace\\s*", " ");
 				}
 				if (i == 1) {// 关键字在前匹配
-					p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*(?:" + key + ")(?:[^\\w])\\s*(?:"
-							+ sqloneStr + ")?\\s*\\w*(\\s*,)*");
+					p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*(?:" + key +
+							")(?:[^\\w])\\s*(?:" + sqloneStr + ")?\\s*\\w*(\\s*,)*");
 				}
 
 			}
@@ -181,8 +182,8 @@ public class SqlUtils {
 		String sqloneStr = Common.join(sqlOneOpers, "|");
 		// 一次性完全替换没有找到指定关键字的子查询
 		int i = 0;
-		Pattern p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*\\w+\\(?\\w*(\\.\\w+)?\\)?\\s*(?:"
-				+ sqloneStr + ")?\\s*(?:" + key + ")(?:[^\\w])(\\s*,)*");
+		Pattern p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*\\w+\\(?\\w*(\\.\\w+)?\\)?\\s*(?:" +
+				sqloneStr + ")?\\s*(?:" + key + ")(?:[^\\w])(\\s*,)*");
 		Matcher m;
 		while (i++ < 2) {
 			// 关键字在后匹配
@@ -204,8 +205,8 @@ public class SqlUtils {
 				sql = sql.replaceAll("\\s*,*\\s*_replace__.+?__replace\\s*", " ");
 			}
 			if (i == 1) {// 关键字在前匹配
-				p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*(?:" + key + ")(?:[^\\w])\\s*(?:"
-						+ sqloneStr + ")?\\s*\\w*(\\s*,)*");
+				p = Pattern.compile("(?i)((,)|[^\\w]and[^\\w]|[^\\w]or[^\\w])?\\s*(?:" + key + ")(?:[^\\w])\\s*(?:" +
+						sqloneStr + ")?\\s*\\w*(\\s*,)*");
 			}
 
 		}
@@ -253,16 +254,27 @@ public class SqlUtils {
 	/**
 	 * 对传入sql 进行处理分页，该方法为查询大数据量时使用，无排序
 	 * 
-	 * @param sql 原始sql
-	 * @param countSql 总数sql
-	 * @param page 页数
+	 * @param sql
+	 *            原始sql
+	 * @param countSql
+	 *            总数sql
+	 * @param page
+	 *            页数
 	 * @return
 	 */
-	public static String wrapPagingSql(String sql, String countSql, Page page) {
+	public static String wrapPagingSql(DataAccess access, String sql, String countSql, Page page) {
 		sql = sql.trim();// 去除字符串后面的空字符，便于正则表达式匹配
-		sql = "SELECT INNERTABLE_.*,ROWNUM RN_,(" + countSql + ") TOTAL_COUNT_ " + "FROM (" + sql
-				+ ") INNERTABLE_ WHERE rownum <=" + (page.getPosStart() + page.getCount());
-		sql = "SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1);
+		if (access.isMysql()) {
+			access.execNoQuerySql("SET @rownum=0");
+			sql = "select @rownum:=@rownum+1 rownum," + sql.substring("select".length() + 1);
+			sql = "SELECT INNERTABLE_.*,ROWNUM RN_,(" + countSql + ") TOTAL_COUNT_ " + "FROM (" + sql +
+					") INNERTABLE_ WHERE rownum <=" + (page.getPosStart() + page.getCount());
+			sql = " SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1);
+		} else {
+			sql = "SELECT INNERTABLE_.*,ROWNUM RN_,(" + countSql + ") TOTAL_COUNT_ " + "FROM (" + sql +
+					") INNERTABLE_ WHERE rownum <=" + (page.getPosStart() + page.getCount());
+			sql = "SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1);
+		}
 		return sql;
 	}
 
@@ -274,17 +286,16 @@ public class SqlUtils {
 	 * @param isTotal
 	 * @return
 	 */
-	public static String wrapPagingSql(String sql, Page page) {
-		return wrapPagingSql(sql, page, true);
+	public static String wrapPagingSql(DataAccess access, String sql, Page page) {
+		return wrapPagingSql(access, sql, page, true);
 	}
 
 	/**
-	 * 对SQL进行处理，封装分页逻辑，注意SQL的排序逻辑，SQL一定要根据主键或者唯一键值进行排序，
-	 * 该SQL查询出的字段中已经有查询总数的判断逻辑，字段TOTAL_COUNT_即为查询总记录。 此函数对SQl进行简单的order by处理。
+	 * 对SQL进行处理，封装分页逻辑，注意SQL的排序逻辑，SQL一定要根据主键或者唯一键值进行排序， 该SQL查询出的字段中已经有查询总数的判断逻辑，字段TOTAL_COUNT_即为查询总记录。 此函数对SQl进行简单的order by处理。
 	 * 
 	 * @return
 	 */
-	public static String wrapPagingSql(String sql, Page page, boolean isTotal) {
+	public static String wrapPagingSql(DataAccess access, String sql, Page page, boolean isTotal) {
 		sql = sql.trim();// 去除字符串后面的空字符，便于正则表达式匹配
 		// 匹配order by结尾的正则表达式
 		Pattern pattern = Pattern.compile(".+order\\s+by\\s+(.+)", Pattern.CASE_INSENSITIVE);
@@ -316,30 +327,34 @@ public class SqlUtils {
 			throw new IllegalStateException("SQL:" + sql + " 没有做排序处理，不能保证其分页的正确性，不能做分页！");
 			// 取消自动追加Oeder——by
 			/*
-			 * int selectIndex=sql.toUpperCase().indexOf("SELECT"); int
-			 * fromIndex=sql.toUpperCase().indexOf("FROM"); String
-			 * queryColumns=sql.substring(selectIndex+6,fromIndex); if
-			 * (queryColumns.contains("*")){
-			 * LogUtils.error("SQL语句没有ORDER BY语句进行排序，查询列中包含[*]匹配符，" +
-			 * "为SQL添加ORDER BY 语句失败！"); throw new IllegalStateException(); }
-			 * //去除AS语句
-			 * queryColumns=queryColumns.replaceAll("(?i)\\s+as\\s+\\w+"
-			 * ," ").trim(); //去除，号前后空格
-			 * queryColumns=queryColumns.replaceAll("\\s*,\\s*",",");
-			 * //去除没有AS的别命名
-			 * queryColumns=queryColumns.replaceAll("\\s+\\w+(,|$)","$1");
-			 * //加上order by 子句 sql+=" ORDER BY "+queryColumns;
+			 * int selectIndex=sql.toUpperCase().indexOf("SELECT"); int fromIndex=sql.toUpperCase().indexOf("FROM"); String
+			 * queryColumns=sql.substring(selectIndex+6,fromIndex); if (queryColumns.contains("*")){
+			 * LogUtils.error("SQL语句没有ORDER BY语句进行排序，查询列中包含[*]匹配符，" + "为SQL添加ORDER BY 语句失败！"); throw new IllegalStateException();
+			 * } //去除AS语句 queryColumns=queryColumns.replaceAll("(?i)\\s+as\\s+\\w+" ," ").trim(); //去除，号前后空格
+			 * queryColumns=queryColumns.replaceAll("\\s*,\\s*",","); //去除没有AS的别命名
+			 * queryColumns=queryColumns.replaceAll("\\s+\\w+(,|$)","$1"); //加上order by 子句 sql+=" ORDER BY "+queryColumns;
 			 */
 
 		}
-		// 封装分页逻辑
-		// 嵌套子查询，用于计算rowNum和计算最大rowNum，即总数目
-		sql = "SELECT INNERTABLE_.*,ROWNUM RN_"
-				+ (isTotal ? (",DECODE(ROWNUM," + (page.getPosStart() + 1) + ",MAX(ROWNUM) OVER(),0) TOTAL_COUNT_")
-						: "") + " FROM (" + sql + ") INNERTABLE_ ";
-		// 加入分页逻辑
-		sql = "SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1)
-				+ " AND INNER_.RN_<=" + (page.getPosStart() + page.getCount());
+		if (access.isMysql()) {
+			access.execNoQuerySql("SET @rownum=0");
+			String countSql = "select count(0) from (" + sql + ") t";
+			sql = "select @rownum:=@rownum+1 rownum," + sql.substring("select".length() + 1);
+			sql = "SELECT INNERTABLE_.*,ROWNUM RN_" + (isTotal ? (",(" + countSql + ") TOTAL_COUNT_") : "") +
+					" FROM (" + sql + ") INNERTABLE_ ";
+			// 加入分页逻辑
+			sql = " SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1) +
+					" AND INNER_.RN_<=" + (page.getPosStart() + page.getCount());
+		} else {
+			// 封装分页逻辑
+			// 嵌套子查询，用于计算rowNum和计算最大rowNum，即总数目
+			sql = "SELECT INNERTABLE_.*,ROWNUM RN_" +
+					(isTotal ? (",DECODE(ROWNUM," + (page.getPosStart() + 1) + ",MAX(ROWNUM) OVER(),0) TOTAL_COUNT_")
+							: "") + " FROM (" + sql + ") INNERTABLE_ ";
+			// 加入分页逻辑
+			sql = "SELECT INNER_.* FROM (" + sql + ") INNER_ WHERE INNER_.RN_>=" + (page.getPosStart() + 1) +
+					" AND INNER_.RN_<=" + (page.getPosStart() + page.getCount());
+		}
 		return sql;
 	}
 

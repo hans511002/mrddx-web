@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.ery.base.support.jdbc.DataAccess;
+import com.ery.base.support.utils.Convert;
+import com.ery.base.support.utils.MapUtils;
 import com.ery.meta.common.Page;
 import com.ery.meta.common.SqlUtils;
 import com.ery.meta.common.term.TermConstant;
 import com.ery.meta.common.term.TermDataCall;
 import com.ery.meta.common.term.TermDataService;
-
-import com.ery.base.support.jdbc.DataAccess;
-import com.ery.base.support.utils.Convert;
-import com.ery.base.support.utils.MapUtils;
 
 public class SelectDsServiceImpl extends TermDataService {
 	@Override
@@ -28,11 +27,11 @@ public class SelectDsServiceImpl extends TermDataService {
 		int dataSourceType = Convert.toInt(params.get("SOURCE_TYPE_ID"), -1);
 		if (classPar != null) {
 			long sourceCate = Convert.toLong(classPar.get("SOURCE_CATE"), 0);
-			String sql = "SELECT A.DATA_SOURCE_ID VAL,A.DATA_SOURCE_NAME VAL_NAME,A.SOURCE_TYPE_ID,B.SOURCE_NAME SOURCE_TYPE_NAME "
-					+ ((tableLoaded == 0 && !"".equals(defV)) ? ",(case when A.DATA_SOURCE_ID=" + defV
-							+ " then 1 else 0 end) order_key" : "")
-					+ " FROM MR_DATA_SOURCE A,MR_SOURCE_TYPE B "
-					+ " WHERE A.SOURCE_TYPE_ID=B.SOURCE_TYPE_ID AND A.SOURCE_CATE=" + sourceCate;
+			String sql = "SELECT A.DATA_SOURCE_ID VAL,A.DATA_SOURCE_NAME VAL_NAME,A.SOURCE_TYPE_ID,B.SOURCE_NAME SOURCE_TYPE_NAME " +
+					((tableLoaded == 0 && !"".equals(defV)) ? ",(case when A.DATA_SOURCE_ID=" + defV +
+							" then 1 else 0 end) order_key" : "") +
+					" FROM MR_DATA_SOURCE A,MR_SOURCE_TYPE B " +
+					" WHERE A.SOURCE_TYPE_ID=B.SOURCE_TYPE_ID AND A.SOURCE_CATE=" + sourceCate;
 			if (dataSourceType != -1) {
 				sql += " AND A.SOURCE_TYPE_ID=" + dataSourceType;
 			}
@@ -53,7 +52,7 @@ public class SelectDsServiceImpl extends TermDataService {
 				sql += " ORDER BY DATA_SOURCE_ID desc ";
 			}
 			if (page != null)
-				sql = SqlUtils.wrapPagingSql(sql, page);
+				sql = SqlUtils.wrapPagingSql(access, sql, page);
 			return access.queryForList(sql, param.toArray());
 		}
 		return null;
